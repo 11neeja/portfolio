@@ -79,3 +79,18 @@ Works perfectly on **Vercel** — just connect your GitHub repo:
 npm i -g vercel
 vercel
 ```
+
+## 🔎 SEO Setup
+
+This project now includes:
+
+- Canonical URLs, Open Graph, Twitter Card, and robots metadata
+- Structured data (JSON-LD) for the portfolio and project pages
+- Dynamic `robots.txt` at `/robots.txt`
+- Dynamic sitemap at `/sitemap.xml`
+
+Set your production domain so canonical and sitemap links are correct:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```

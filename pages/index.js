@@ -1,20 +1,62 @@
-import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Skills from '../components/Skills';
 import Experience from '../components/Experience';
 import Projects from '../components/Projects';
 import { Achievements, Contact } from '../components/AchievementsContact';
+import { hero } from '../data/portfolio';
+import SEO from '../components/SEO';
+import { getSiteUrl } from '../lib/seo';
+
+function normalizeProfileUrl(url) {
+  if (!url) return null;
+  const absolute = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+
+  try {
+    const parsed = new URL(absolute);
+    const path = parsed.pathname.replace(/\/$/, '');
+    if (!path || path === '') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
 
 export default function Home() {
+  const siteUrl = getSiteUrl();
+  const sameAs = [normalizeProfileUrl(hero.github), normalizeProfileUrl(hero.linkedin)].filter(Boolean);
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Person',
+        name: 'Neeja Suva',
+        jobTitle: 'Full Stack Developer',
+        url: siteUrl,
+        email: 'mailto:suva.neeja11@gmail.com',
+        address: {
+          '@type': 'PostalAddress',
+          addressCountry: 'IN',
+        },
+        ...(sameAs.length ? { sameAs } : {}),
+      },
+      {
+        '@type': 'WebSite',
+        name: 'Neeja Suva Portfolio',
+        url: siteUrl,
+      },
+    ],
+  };
+
   return (
     <>
-      <Head>
-        <title>Neeja Suva | Full Stack Developer Portfolio</title>
-        <meta name="description" content="Neeja Suva — Full Stack Developer & AI/ML Explorer from India. LDRP-ITR, Gandhinagar. React, Node.js, Python, ML." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='8' y='8' width='84' height='84' rx='8' fill='%23FF6B9D'/%3E%3Crect x='26' y='26' width='48' height='48' fill='%23070412'/%3E%3C/svg%3E" />
-      </Head>
+      <SEO
+        title="Neeja Suva | Full Stack Developer Portfolio"
+        description="Neeja Suva — Full Stack Developer and AI/ML Explorer from India. Explore MERN, React, Node.js, Python and machine learning projects."
+        pathname="/"
+        keywords="Neeja Suva, Full Stack Developer, MERN Developer, AI ML Developer, Portfolio, React, Node.js, Python"
+        structuredData={structuredData}
+      />
 
       <Navbar />
 

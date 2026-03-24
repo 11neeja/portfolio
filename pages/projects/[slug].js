@@ -1,8 +1,9 @@
-import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
 import { projects } from '../../data/portfolio';
 import ProjectGameModal from '../../components/ProjectGameModal';
+import SEO from '../../components/SEO';
+import { getCanonicalUrl, getSiteUrl } from '../../lib/seo';
 
 const biomeThemes = {
   forest: {
@@ -136,13 +137,34 @@ export default function ProjectDetailsPage({ project }) {
   const [isGameOpen, setIsGameOpen] = useState(false);
   const theme = biomeThemes[project.biome] || biomeThemes.forest;
   const hasGame = ['ecovision', 'joblink', 'documind', 'smartpay'].includes(project.slug);
+  const pathname = `/projects/${project.slug}`;
+  const siteUrl = getSiteUrl();
+  const socialImage = project.world?.image ? `${siteUrl}${project.world.image}` : undefined;
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: project.name,
+    description: project.desc,
+    url: getCanonicalUrl(pathname),
+    codeRepository: project.github && project.github !== '#' ? project.github : undefined,
+    programmingLanguage: project.stack,
+    author: {
+      '@type': 'Person',
+      name: 'Neeja Suva',
+    },
+  };
 
   return (
     <>
-      <Head>
-        <title>{project.name} | Project Details</title>
-        <meta name="description" content={project.desc} />
-      </Head>
+      <SEO
+        title={`${project.name} | Project Details | Neeja Suva`}
+        description={project.desc}
+        pathname={pathname}
+        image={socialImage}
+        type="article"
+        keywords={`${project.name}, ${project.stack.join(', ')}, project case study, full stack project`}
+        structuredData={structuredData}
+      />
 
       <main className="relative min-h-screen text-white overflow-hidden">
         <div className={`absolute inset-0 bg-gradient-to-b ${theme.pageBg}`} />
