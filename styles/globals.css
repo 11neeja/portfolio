@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; scroll-behavior: smooth; }
+body { background: #070412; color: #F1F0FF; font-family: 'Outfit', sans-serif; overflow-x: hidden; cursor: none; }
+
+/* Custom cursor */
+.cursor { position: fixed; width: 12px; height: 12px; background: #FF6B9D; border-radius: 0; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); image-rendering: pixelated; transition: transform 0.1s; }
+.cursor-follower { position: fixed; width: 30px; height: 30px; border: 2px solid rgba(255,107,157,0.5); border-radius: 0; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); transition: all 0.15s ease; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #070412; }
+::-webkit-scrollbar-thumb { background: #FF6B9D; border-radius: 0; }
+
+/* Pixel art character */
+.character-sprite { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* Scanline overlay */
+.scanlines::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 10; }
+
+/* Pixel border */
+.pixel-border { border: 2px solid #FF6B9D; box-shadow: 4px 4px 0 #C084FC; }
+.pixel-border-gold { border: 2px solid #FBBF24; box-shadow: 4px 4px 0 #F59E0B; }
+.pixel-border-teal { border: 2px solid #2DD4BF; box-shadow: 4px 4px 0 #0D9488; }
+
+/* Gradient text */
+.gradient-text { background: linear-gradient(135deg, #FF6B9D, #C084FC, #2DD4BF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.gold-text { background: linear-gradient(135deg, #FBBF24, #F59E0B); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* HP / XP bars */
+.xp-bar { background: linear-gradient(90deg, #FF6B9D, #C084FC); height: 8px; border-radius: 0; transition: width 1s ease; }
+.hp-bar { background: linear-gradient(90deg, #2DD4BF, #06B6D4); height: 8px; border-radius: 0; }
+
+/* Stars background */
+.stars-bg { position: absolute; inset: 0; overflow: hidden; }
+
+/* Ground tiles */
+.ground-tile { image-rendering: pixelated; }
+
+/* Card hover */
+.game-card { transition: all 0.25s ease; }
+.game-card:hover { transform: translate(-4px, -4px); }
+
+/* Section divider */
+.biome-divider { width: 100%; height: 80px; position: relative; overflow: hidden; }
+
+@keyframes heroLowerFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes heroStarDrift {
+  0% { transform: translateX(0px) translateY(0px); }
+  50% { transform: translateX(3px) translateY(-2px); }
+  100% { transform: translateX(-2px) translateY(2px); }
+}
+
+@keyframes heroParticleFloat {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-5px) scale(1.04); }
+}
+
+@keyframes heroParticleDrift {
+  0% { transform: translateX(0px); }
+  50% { transform: translateX(6px); }
+  100% { transform: translateX(-5px); }
+}
+
+@keyframes heroGrassPulse {
+  0%, 100% { transform: scaleY(1); opacity: 0.65; }
+  50% { transform: scaleY(1.09); opacity: 0.82; }
+}
+
+@keyframes heroPlatformBob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes heroTreeSway {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  50% { transform: rotate(0.8deg) translateY(-1px); }
+}
+
+.hero-lower-motion {
+  animation: heroLowerFloat 8.5s ease-in-out infinite;
+}
+
+@layer utilities {
+  .text-shadow-pixel { text-shadow: 2px 2px 0 #C084FC; }
+  .text-shadow-gold { text-shadow: 2px 2px 0 #B45309; }
+}

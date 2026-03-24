@@ -1,0 +1,30 @@
+<svg width="1600" height="700" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SmartPAY lava world">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3D140C"/>
+      <stop offset="50%" stop-color="#9A3412"/>
+      <stop offset="100%" stop-color="#1F0A07"/>
+    </linearGradient>
+    <linearGradient id="lava" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FDBA74"/>
+      <stop offset="50%" stop-color="#FB923C"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="700" fill="url(#bg)"/>
+  <g fill="#2A0D08">
+    <rect x="0" y="420" width="1600" height="280"/>
+    <polygon points="80,410 360,410 290,520 40,520"/>
+    <polygon points="430,370 710,370 650,500 390,500"/>
+    <polygon points="820,390 1110,390 1030,540 760,540"/>
+    <polygon points="1180,360 1540,360 1450,540 1120,540"/>
+  </g>
+  <g fill="url(#lava)" opacity="0.9">
+    <path d="M0 560 C150 500, 320 620, 520 560 C700 505, 870 620, 1080 560 C1260 510, 1420 620, 1600 565 L1600 700 L0 700 Z"/>
+  </g>
+  <g fill="#FED7AA" opacity="0.4">
+    <circle cx="260" cy="190" r="70"/>
+    <circle cx="810" cy="140" r="50"/>
+    <circle cx="1300" cy="170" r="90"/>
+  </g>
+</svg>
