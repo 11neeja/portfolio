@@ -1,5 +1,5 @@
 import { projects } from '../data/portfolio';
-import { getSiteUrl } from '../lib/seo';
+import { escapeXml, getSiteUrl } from '../lib/seo';
 
 function buildSitemapXml() {
   const siteUrl = getSiteUrl();
@@ -18,7 +18,7 @@ function buildSitemapXml() {
     .map(
       (url) => `
   <url>
-    <loc>${url.loc}</loc>
+    <loc>${escapeXml(url.loc)}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>${url.changefreq}</changefreq>
     <priority>${url.priority}</priority>

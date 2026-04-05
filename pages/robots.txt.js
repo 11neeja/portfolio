@@ -2,7 +2,8 @@ import { getSiteUrl } from '../lib/seo';
 
 export async function getServerSideProps({ res }) {
   const siteUrl = getSiteUrl();
-  const robots = `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\nHost: ${siteUrl}`;
+  const host = siteUrl.replace(/^https?:\/\//i, '');
+  const robots = `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\nHost: ${host}`;
 
   res.setHeader('Content-Type', 'text/plain');
   res.write(robots);

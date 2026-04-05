@@ -31,6 +31,9 @@ export default function Home() {
       {
         '@type': 'Person',
         name: 'Neeja Suva',
+        givenName: 'Neeja',
+        familyName: 'Suva',
+        alternateName: ['Neeja', 'Neeja Dev', 'Suva Neeja'],
         jobTitle: 'Full Stack Developer',
         url: siteUrl,
         email: 'mailto:suva.neeja11@gmail.com',
@@ -43,7 +46,9 @@ export default function Home() {
       {
         '@type': 'WebSite',
         name: 'Neeja Suva Portfolio',
+        alternateName: ['Neeja Dev', 'neeja.dev'],
         url: siteUrl,
+        inLanguage: 'en',
       },
     ],
   };
@@ -51,10 +56,10 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="Neeja Suva | Full Stack Developer Portfolio"
-        description="Neeja Suva — Full Stack Developer and AI/ML Explorer from India. Explore MERN, React, Node.js, Python and machine learning projects."
+        title="Neeja Suva (Neeja Dev) | Full Stack Developer Portfolio"
+        description="Neeja Suva (Neeja Dev) portfolio website. Full Stack Developer and AI/ML Explorer from India building MERN, React, Node.js and Python projects."
         pathname="/"
-        keywords="Neeja Suva, Full Stack Developer, MERN Developer, AI ML Developer, Portfolio, React, Node.js, Python"
+        keywords="Neeja Suva, Neeja, Suva Neeja, Neeja Dev, neeja.dev, Full Stack Developer, MERN Developer, AI ML Developer, Portfolio, React, Node.js, Python"
         structuredData={structuredData}
       />
 
