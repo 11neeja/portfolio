@@ -171,6 +171,13 @@ export default function Hero() {
   const gameWidthRef = useRef(760);
   const spawnCooldownRef = useRef(0);
   const speedRef = useRef(7);
+  const touchStateRef = useRef({
+    active: false,
+    lastX: 0,
+    lastY: 0,
+  });
+
+  const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
   const startRunnerGame = () => {
     gameWidthRef.current = heroRef.current?.clientWidth || window.innerWidth || 760;
@@ -247,8 +254,6 @@ export default function Hero() {
 
   // Character walk using keyboard arrow keys
   useEffect(() => {
-    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
-
     const onKeyDown = (e) => {
       if (game.running) return;
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
@@ -592,8 +597,47 @@ export default function Hero() {
 
       {/* Character movement controlled with arrow keys */}
       {!(game.running || game.over) && (
-        <div className="absolute bottom-32 z-20 transition-all duration-300"
-          style={{ left: `${charPos}%`, transform: `translate(-50%, -${charY}px)` }}>
+        <div
+          className="absolute bottom-32 z-20 transition-all duration-300"
+          style={{ left: `${charPos}%`, transform: `translate(-50%, -${charY}px)`, touchAction: 'none' }}
+          onTouchStart={(event) => {
+            const touch = event.touches[0];
+            if (!touch) return;
+            touchStateRef.current = {
+              active: true,
+              lastX: touch.clientX,
+              lastY: touch.clientY,
+            };
+          }}
+          onTouchMove={(event) => {
+            const touch = event.touches[0];
+            if (!touch || !touchStateRef.current.active) return;
+
+            const deltaX = touch.clientX - touchStateRef.current.lastX;
+            const deltaY = touch.clientY - touchStateRef.current.lastY;
+
+            touchStateRef.current.lastX = touch.clientX;
+            touchStateRef.current.lastY = touch.clientY;
+
+            // Convert swipe distance to a smooth step in scene coordinates.
+            const xStep = deltaX / 10;
+            const yStep = deltaY / 4;
+
+            setWalking(Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1);
+            setCharPos((prev) => clamp(prev + xStep, 8, 92));
+            setCharY((prev) => clamp(prev - yStep, 0, 120));
+
+            event.preventDefault();
+          }}
+          onTouchEnd={() => {
+            touchStateRef.current.active = false;
+            setWalking(false);
+          }}
+          onTouchCancel={() => {
+            touchStateRef.current.active = false;
+            setWalking(false);
+          }}
+        >
           {/* Speech bubble */}
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-darker border-2 border-pixel px-3 py-1.5 whitespace-nowrap"
             style={{ boxShadow: '2px 2px 0 #C084FC' }}>
