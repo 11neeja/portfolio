@@ -12,9 +12,9 @@ const biomeStyles = {
 
 function StatPill({ label, val, color }) {
   return (
-    <div className="text-center px-3 py-2 border border-white/10 bg-white/5">
-      <div className="font-pixel text-base" style={{ color }}>{val}</div>
-      <div className="font-body text-[11px] text-purple-100/90 mt-1 tracking-wide">{label}</div>
+    <div className="text-center px-2 py-2 md:px-3 md:py-2 border border-white/10 bg-white/5 min-w-0">
+      <div className="font-pixel text-[11px] sm:text-[13px] md:text-base leading-tight break-words" style={{ color }}>{val}</div>
+      <div className="font-body text-[10px] md:text-[11px] text-purple-100/90 mt-1 tracking-wide break-words">{label}</div>
     </div>
   );
 }
@@ -40,7 +40,7 @@ function ProjectCard({ project, index }) {
       style={{ borderColor: `${project.color}40`, boxShadow: `6px 6px 0 ${project.color}20` }}>
 
       {/* Left: visual panel */}
-      <div className={`relative p-8 flex flex-col items-center justify-center min-h-48 border-r ${isEven ? 'md:order-1' : 'md:order-2'}`}
+      <div className={`relative p-5 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-48 border-r ${isEven ? 'md:order-1' : 'md:order-2'}`}
         style={{ borderColor: `${project.color}20`, background: `${project.color}08` }}>
 
         {/* Badge */}
@@ -62,11 +62,11 @@ function ProjectCard({ project, index }) {
           </span>
         </div>
 
-        <div className="font-pixel text-[11px] md:text-xs text-center" style={{ color: project.color }}>{project.name}</div>
-        <div className="font-body text-sm text-purple-100/90 text-center mt-2">{project.subtitle}</div>
+        <div className="font-pixel text-[10px] sm:text-[11px] md:text-xs text-center" style={{ color: project.color }}>{project.name}</div>
+        <div className="font-body text-xs sm:text-sm text-purple-100/90 text-center mt-2">{project.subtitle}</div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-3 gap-2 mt-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 w-full">
           {Object.entries(project.stats).map(([k, v]) => (
             <StatPill key={k} label={k.toUpperCase()} val={v} color={project.color} />
           ))}
@@ -74,7 +74,7 @@ function ProjectCard({ project, index }) {
       </div>
 
       {/* Right: info panel */}
-      <div className={`p-8 flex flex-col justify-center ${isEven ? 'md:order-2' : 'md:order-1'}`}>
+      <div className={`p-5 sm:p-6 md:p-8 flex flex-col justify-center ${isEven ? 'md:order-2' : 'md:order-1'}`}>
         <div className="font-pixel text-[9px] mb-2" style={{ color: project.color }}>
           ▶ ITEM ACQUIRED
         </div>
@@ -92,7 +92,7 @@ function ProjectCard({ project, index }) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <a href={project.github}
             className="font-pixel text-[9px] px-4 py-2 border-2 transition-all duration-200 hover:scale-105"
             onClick={(e) => e.stopPropagation()}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { projects } from '../../data/portfolio';
 import ProjectGameModal from '../../components/ProjectGameModal';
@@ -59,12 +60,15 @@ function BiomePreview({ project }) {
 
   return (
     <div className="relative border border-white/20 overflow-hidden" style={{ boxShadow: `0 0 50px ${theme.glow}` }}>
-      <div className={`h-52 md:h-72 bg-gradient-to-r ${theme.banner} relative`}>
+      <div className={`h-[46vw] min-h-[190px] max-h-[320px] md:h-72 bg-gradient-to-r ${theme.banner} relative`}>
         {project.world?.image ? (
-          <img
+          <Image
             src={project.world.image}
             alt={`${project.name} world preview`}
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+            className="absolute inset-0 w-full h-full object-contain md:object-cover object-center"
+            priority
           />
         ) : null}
 

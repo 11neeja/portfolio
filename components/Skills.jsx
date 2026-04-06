@@ -83,16 +83,21 @@ export default function Skills() {
           <div className="bg-darker/60 border border-gold/30 p-6 backdrop-blur-sm"
             style={{ boxShadow: '4px 4px 0 rgba(251,191,36,0.3)' }}>
             <div className="font-pixel text-[9px] text-gold mb-6">▶ CHARACTER INFO</div>
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
               {[
                 { label: 'LEVEL', val: '03', color: '#FBBF24' },
-                { label: 'CLASS', val: 'FULLSTACK', color: '#FF6B9D' },
+                { label: 'CLASS', val: 'FULL STACK', color: '#FF6B9D' },
                 { label: 'CGPA', val: '7.3', color: '#2DD4BF' },
                 { label: 'INTERN XP', val: '2x', color: '#C084FC' },
               ].map((item) => (
-                <div key={item.label} className="bg-card/50 border border-white/10 p-3 text-center">
+                <div key={item.label} className="bg-card/50 border border-white/10 p-2.5 sm:p-3 text-center min-w-0">
                   <div className="font-pixel text-[7px] text-muted mb-1">{item.label}</div>
-                  <div className="font-pixel text-lg" style={{ color: item.color }}>{item.val}</div>
+                  <div
+                    className={`font-pixel leading-tight break-words ${item.label === 'CLASS' ? 'text-sm sm:text-base md:text-lg' : 'text-base sm:text-lg'}`}
+                    style={{ color: item.color }}
+                  >
+                    {item.val}
+                  </div>
                 </div>
               ))}
             </div>

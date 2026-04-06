@@ -99,7 +99,6 @@ function BiomeGround() {
 
 const HERO_GROUND_PX = 84;
 const OBSTACLE_GROUND_PX = HERO_GROUND_PX - 3;
-const PLAYER_X_PX = 140;
 const PLAYER_W = 56;
 const BIOME_THEMES = [
   {
@@ -154,6 +153,7 @@ export default function Hero() {
   const [charY, setCharY] = useState(0);
   const [walking, setWalking] = useState(false);
   const [highScore, setHighScore] = useState(0);
+  const [runnerX, setRunnerX] = useState(110);
   const [game, setGame] = useState({
     running: false,
     paused: false,
@@ -192,6 +192,20 @@ export default function Hero() {
       if (!prev.running || prev.over) return prev;
       return { ...prev, paused: !prev.paused };
     });
+  };
+
+  const jumpRunner = () => {
+    setGame((prev) => {
+      if (!prev.running || prev.paused || prev.runnerY > 0) return prev;
+      const scoreScale = Math.min(prev.score / 1200, 1.8);
+      const jumpBoost = 18 + scoreScale * 3.4;
+      return { ...prev, runnerV: jumpBoost };
+    });
+  };
+
+  const getRunnerX = (width) => {
+    const fromWidth = Math.floor(width * 0.2);
+    return Math.max(76, Math.min(fromWidth, 120));
   };
 
   const biomeIdx = Math.floor(game.score / 550) % BIOME_THEMES.length;
@@ -279,17 +293,12 @@ export default function Hero() {
       if (game.paused) return;
 
       e.preventDefault();
-      setGame((prev) => {
-        if (!prev.running || prev.paused || prev.runnerY > 0) return prev;
-        const scoreScale = Math.min(prev.score / 1200, 1.8);
-        const jumpBoost = 18 + scoreScale * 3.4;
-        return { ...prev, runnerV: jumpBoost };
-      });
+      jumpRunner();
     };
 
     window.addEventListener('keydown', onRunnerKeyDown);
     return () => window.removeEventListener('keydown', onRunnerKeyDown);
-  }, [game.running]);
+  }, [game.running, game.paused]);
 
   // Runner game loop
   useEffect(() => {
@@ -299,7 +308,7 @@ export default function Hero() {
 
     const hasCollision = (runnerY, obstacles) => {
       return obstacles.some((obs) => {
-        const hitX = PLAYER_X_PX < obs.x + obs.width && PLAYER_X_PX + PLAYER_W > obs.x;
+        const hitX = runnerX < obs.x + obs.width && runnerX + PLAYER_W > obs.x;
         const hitY = runnerY < obs.height;
         return hitX && hitY;
       });
@@ -400,12 +409,14 @@ export default function Hero() {
     }, tickMs);
 
     return () => clearInterval(timer);
-  }, [game.running]);
+  }, [game.running, runnerX]);
 
   // Keep game width in sync with viewport/section size.
   useEffect(() => {
     const syncWidth = () => {
-      gameWidthRef.current = heroRef.current?.clientWidth || window.innerWidth || 760;
+      const width = heroRef.current?.clientWidth || window.innerWidth || 760;
+      gameWidthRef.current = width;
+      setRunnerX(getRunnerX(width));
     };
 
     syncWidth();
@@ -414,7 +425,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden scanlines">
+    <section ref={heroRef} id="hero" className="relative min-h-[100svh] flex flex-col items-center justify-center overflow-hidden scanlines">
       {/* Sky background */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#07001A] via-[#110030] to-[#0F2A0F]" />
       {(game.running || game.over) && (
@@ -430,7 +441,7 @@ export default function Hero() {
       <Cloud x={80} y={10} scale={0.9} />
 
       {/* Moon */}
-      <div className="absolute top-16 right-16 w-16 h-16 rounded-full bg-yellow-100 border-4 border-yellow-200"
+      <div className="absolute top-14 right-4 sm:right-10 md:right-16 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-yellow-100 border-4 border-yellow-200"
         style={{ imageRendering: 'pixelated', boxShadow: '0 0 30px rgba(253,230,138,0.4)' }}>
         <div className="absolute top-2 left-2 w-3 h-3 rounded-full bg-yellow-200/40" />
         <div className="absolute top-6 right-3 w-2 h-2 rounded-full bg-yellow-200/30" />
@@ -484,34 +495,34 @@ export default function Hero() {
       </div>
 
       {/* Center content */}
-      <div className="relative z-10 text-center px-4 mb-32">
+      <div className="relative z-10 text-center px-4 mb-24 md:mb-32 w-full max-w-5xl">
         <div className="font-pixel text-pixel text-[11px] mb-2" style={{ textShadow: '0 0 20px #FF6B9D' }}>PLAYER ONE</div>
-        <h1 className="font-pixel text-5xl md:text-7xl gradient-text mb-4 leading-tight whitespace-nowrap" style={{ textShadow: '4px 4px 0 rgba(192,132,252,0.3)' }}>
+        <h1 className="font-pixel text-[clamp(2.2rem,16vw,4.4rem)] md:text-7xl gradient-text mb-4 leading-[0.92] whitespace-normal break-words max-w-[95vw] mx-auto" style={{ textShadow: '4px 4px 0 rgba(192,132,252,0.3)' }}>
           NEEJA SUVA
         </h1>
         <div className="hero-lower-motion">
-          <div className="font-body text-lg md:text-xl text-purple-200 mb-2 h-8">
+          <div className="font-body text-base sm:text-lg md:text-xl text-purple-200 mb-3 h-10 px-2">
             {typed}<span className="animate-ping text-pixel">|</span>
           </div>
 
           {(game.running || game.over) && (
-            <div className="inline-flex items-center gap-3 font-pixel text-[9px] text-gold mb-4 px-3 py-2 border border-gold/50"
+            <div className="mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-pixel text-[8px] sm:text-[9px] text-gold mb-4 px-3 py-2 border border-gold/50 max-w-[94vw]"
               style={{ background: currentBiome.hudBg }}>
               <span>BIOME: {currentBiome.name}</span>
               <span>SCORE: {Math.floor(game.score / 5)}</span>
               <span>HIGH: {highScore}</span>
-              <span className="text-white/85">PRESS ↑ TO JUMP</span>
+              <span className="text-white/85">TAP OR PRESS UP TO JUMP</span>
               <span className="text-white/85">{game.paused ? 'PAUSED' : 'LIVE'}</span>
             </div>
           )}
 
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
+          <div className="flex flex-wrap justify-center gap-3 mb-8 px-2">
             {[
               { label: '▶ VIEW PROJECTS', href: '#projects', primary: true },
               { label: 'CONTACT', href: '#contact', primary: false },
             ].map((btn) => (
               <a key={btn.label} href={btn.href}
-                className={`font-pixel text-[9px] px-5 py-3 border-2 transition-all duration-200 ${btn.primary
+                className={`font-pixel text-[9px] px-5 py-3 border-2 transition-all duration-200 w-full max-w-[270px] sm:w-auto ${btn.primary
                   ? 'bg-pixel text-white border-pixel hover:bg-transparent hover:text-pixel'
                   : 'bg-transparent text-teal border-teal hover:bg-teal hover:text-darker'
                 }`}
@@ -523,7 +534,7 @@ export default function Hero() {
 
           <button
             onClick={game.running ? togglePauseGame : startRunnerGame}
-            className="font-pixel text-[10px] text-teal mb-3 border-2 border-teal/70 px-4 py-2 bg-black/30 hover:bg-teal hover:text-darker transition-colors"
+            className="font-pixel text-[10px] text-teal mb-3 border-2 border-teal/70 px-4 py-2 bg-black/30 hover:bg-teal hover:text-darker transition-colors w-full max-w-[270px]"
           >
             {game.running ? (game.paused ? '▶ RESUME GAME ◀' : '❚❚ PAUSE GAME') : game.over ? 'RESTART GAME' : '▶ START GAME ◀'}
           </button>
@@ -594,8 +605,20 @@ export default function Hero() {
       )}
 
       {(game.running || game.over) && (
+        <div
+          className="absolute inset-0 z-20"
+          onPointerDown={(event) => {
+            const target = event.target;
+            if (target instanceof HTMLElement && target.closest('button, a')) return;
+            if (game.running && !game.paused) jumpRunner();
+          }}
+          style={{ touchAction: 'manipulation' }}
+        />
+      )}
+
+      {(game.running || game.over) && (
         <div className="absolute z-30 transition-transform duration-75"
-          style={{ left: PLAYER_X_PX, bottom: HERO_GROUND_PX + game.runnerY }}>
+          style={{ left: runnerX, bottom: HERO_GROUND_PX + game.runnerY }}>
           <CharacterSprite size={72} walking={game.running && game.runnerY === 0} />
         </div>
       )}

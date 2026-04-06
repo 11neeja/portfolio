@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const gameThemes = {
   ecovision: {
@@ -42,6 +42,15 @@ function createEmptyBoard(rows, cols) {
   return Array.from({ length: rows }, () => Array(cols).fill(0));
 }
 
+function getSwipeDirection(start, end, threshold = 24) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+
+  if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return null;
+  if (Math.abs(dx) > Math.abs(dy)) return dx > 0 ? 'right' : 'left';
+  return dy > 0 ? 'down' : 'up';
+}
+
 function usePersistentHighScore(storageKey, score) {
   const [highScore, setHighScore] = useState(0);
 
@@ -83,6 +92,19 @@ function SnakeGame({ color, storageKey }) {
 
   const [state, setState] = useState(createInitialState);
   const highScore = usePersistentHighScore(storageKey, state.score);
+  const touchStartRef = useRef({ x: 0, y: 0 });
+
+  const applyDirection = (next) => {
+    setState((prev) => {
+      if (prev.gameOver) return prev;
+      if (prev.direction.x === -next.x && prev.direction.y === -next.y) return prev;
+      return {
+        ...prev,
+        nextDirection: next,
+        running: true,
+      };
+    });
+  };
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -102,15 +124,7 @@ function SnakeGame({ color, storageKey }) {
       if (!next) return;
       event.preventDefault();
 
-      setState((prev) => {
-        if (prev.gameOver) return prev;
-        if (prev.direction.x === -next.x && prev.direction.y === -next.y) return prev;
-        return {
-          ...prev,
-          nextDirection: next,
-          running: true,
-        };
-      });
+      applyDirection(next);
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -171,12 +185,29 @@ function SnakeGame({ color, storageKey }) {
   }, [state.snake, state.food]);
 
   return (
-    <div>
+    <div
+      onTouchStart={(event) => {
+        const touch = event.touches[0];
+        touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+      }}
+      onTouchEnd={(event) => {
+        const touch = event.changedTouches[0];
+        const swipe = getSwipeDirection(touchStartRef.current, { x: touch.clientX, y: touch.clientY });
+        if (!swipe) return;
+
+        if (swipe === 'up') applyDirection({ x: 0, y: -1 });
+        if (swipe === 'down') applyDirection({ x: 0, y: 1 });
+        if (swipe === 'left') applyDirection({ x: -1, y: 0 });
+        if (swipe === 'right') applyDirection({ x: 1, y: 0 });
+      }}
+      style={{ touchAction: 'none' }}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {state.score}</div>
         <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
       </div>
-      <div className="font-pixel text-[8px] text-white/60 text-center mb-3">ARROWS / WASD</div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">ARROWS / WASD</div>
+      <div className="font-body text-[11px] text-white/70 text-center mb-3">Swipe anywhere in this game area to steer.</div>
 
       <div
         className="grid gap-1 border border-white/20 p-2 bg-black/30 aspect-square w-full max-w-[360px] mx-auto"
@@ -209,6 +240,39 @@ function SnakeGame({ color, storageKey }) {
           className="font-pixel text-[9px] px-3 py-2 border border-white/30 text-white"
         >
           RESET
+        </button>
+      </div>
+
+      <div className="mt-4 max-w-[220px] mx-auto grid grid-cols-3 gap-2 select-none" style={{ touchAction: 'none' }}>
+        <div />
+        <button
+          onClick={() => applyDirection({ x: 0, y: -1 })}
+          aria-label="Move up"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ▲
+        </button>
+        <div />
+        <button
+          onClick={() => applyDirection({ x: -1, y: 0 })}
+          aria-label="Move left"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ◀
+        </button>
+        <button
+          onClick={() => applyDirection({ x: 0, y: 1 })}
+          aria-label="Move down"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ▼
+        </button>
+        <button
+          onClick={() => applyDirection({ x: 1, y: 0 })}
+          aria-label="Move right"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ▶
         </button>
       </div>
 
@@ -327,16 +391,25 @@ function FlappyGame({ color, storageKey }) {
   }, [state.running, state.gameOver]);
 
   return (
-    <div>
+    <div
+      onPointerDown={(event) => {
+        const target = event.target;
+        if (target instanceof HTMLElement && target.closest('button, a')) return;
+        flap();
+      }}
+      style={{ touchAction: 'manipulation' }}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {state.score}</div>
         <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
       </div>
-      <div className="font-pixel text-[8px] text-white/60 text-center mb-3">SPACE OR TAP</div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">SPACE OR TAP</div>
+      <div className="font-body text-[11px] text-white/70 text-center mb-3">Tap or swipe anywhere in this game area to flap.</div>
 
       <button
         onClick={flap}
         className="relative mx-auto w-full max-w-[360px] h-[320px] block overflow-hidden border border-white/25 bg-gradient-to-b from-cyan-900/55 to-slate-900/70"
+        style={{ touchAction: 'manipulation' }}
       >
         <div className="absolute inset-x-0 bottom-0 h-12 bg-amber-800/65" />
 
@@ -503,6 +576,66 @@ function TetrisGame({ color, storageKey }) {
 
   const [state, setState] = useState(createInitialState);
   const highScore = usePersistentHighScore(storageKey, state.score);
+  const touchStartRef = useRef({ x: 0, y: 0 });
+
+  const applyMove = (action) => {
+    setState((prev) => {
+      if (prev.gameOver) return prev;
+
+      let next = {
+        ...prev,
+        running: true,
+      };
+
+      if (action === 'left') {
+        if (!collides(prev.board, prev.piece.matrix, prev.piece.x - 1, prev.piece.y)) {
+          next = {
+            ...next,
+            piece: { ...prev.piece, x: prev.piece.x - 1 },
+          };
+        }
+      }
+
+      if (action === 'right') {
+        if (!collides(prev.board, prev.piece.matrix, prev.piece.x + 1, prev.piece.y)) {
+          next = {
+            ...next,
+            piece: { ...prev.piece, x: prev.piece.x + 1 },
+          };
+        }
+      }
+
+      if (action === 'rotate') {
+        const rotated = rotateMatrix(prev.piece.matrix);
+        if (!collides(prev.board, rotated, prev.piece.x, prev.piece.y)) {
+          next = {
+            ...next,
+            piece: { ...prev.piece, matrix: rotated },
+          };
+        }
+      }
+
+      if (action === 'down') {
+        next = dropStep(next);
+      }
+
+      if (action === 'drop') {
+        let hardDrop = next;
+        while (!collides(hardDrop.board, hardDrop.piece.matrix, hardDrop.piece.x, hardDrop.piece.y + 1)) {
+          hardDrop = {
+            ...hardDrop,
+            piece: {
+              ...hardDrop.piece,
+              y: hardDrop.piece.y + 1,
+            },
+          };
+        }
+        next = dropStep(hardDrop);
+      }
+
+      return next;
+    });
+  };
 
   const spawnOrEnd = (board, score) => {
     const nextPiece = randomPiece();
@@ -549,70 +682,21 @@ function TetrisGame({ color, storageKey }) {
       if (!allowed.includes(key)) return;
       event.preventDefault();
 
-      setState((prev) => {
-        if (prev.gameOver) {
-          if (key === ' ') return createInitialState();
-          return prev;
-        }
+      if (state.gameOver) {
+        if (key === ' ') setState(createInitialState());
+        return;
+      }
 
-        let next = {
-          ...prev,
-          running: true,
-        };
-
-        if (key === 'ArrowLeft') {
-          if (!collides(prev.board, prev.piece.matrix, prev.piece.x - 1, prev.piece.y)) {
-            next = {
-              ...next,
-              piece: { ...prev.piece, x: prev.piece.x - 1 },
-            };
-          }
-        }
-
-        if (key === 'ArrowRight') {
-          if (!collides(prev.board, prev.piece.matrix, prev.piece.x + 1, prev.piece.y)) {
-            next = {
-              ...next,
-              piece: { ...prev.piece, x: prev.piece.x + 1 },
-            };
-          }
-        }
-
-        if (key === 'ArrowUp') {
-          const rotated = rotateMatrix(prev.piece.matrix);
-          if (!collides(prev.board, rotated, prev.piece.x, prev.piece.y)) {
-            next = {
-              ...next,
-              piece: { ...prev.piece, matrix: rotated },
-            };
-          }
-        }
-
-        if (key === 'ArrowDown') {
-          next = dropStep(next);
-        }
-
-        if (key === ' ') {
-          let hardDrop = next;
-          while (!collides(hardDrop.board, hardDrop.piece.matrix, hardDrop.piece.x, hardDrop.piece.y + 1)) {
-            hardDrop = {
-              ...hardDrop,
-              piece: {
-                ...hardDrop.piece,
-                y: hardDrop.piece.y + 1,
-              },
-            };
-          }
-          next = dropStep(hardDrop);
-        }
-
-        return next;
-      });
+      if (key === 'ArrowLeft') applyMove('left');
+      if (key === 'ArrowRight') applyMove('right');
+      if (key === 'ArrowUp') applyMove('rotate');
+      if (key === 'ArrowDown') applyMove('down');
+      if (key === ' ') applyMove('drop');
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [applyMove, state.gameOver]);
 
   useEffect(() => {
     if (!state.running || state.gameOver) return undefined;
@@ -643,12 +727,29 @@ function TetrisGame({ color, storageKey }) {
   }, [state.board, state.piece]);
 
   return (
-    <div>
+    <div
+      onTouchStart={(event) => {
+        const touch = event.touches[0];
+        touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+      }}
+      onTouchEnd={(event) => {
+        const touch = event.changedTouches[0];
+        const swipe = getSwipeDirection(touchStartRef.current, { x: touch.clientX, y: touch.clientY });
+        if (!swipe) return;
+
+        if (swipe === 'left') applyMove('left');
+        if (swipe === 'right') applyMove('right');
+        if (swipe === 'down') applyMove('down');
+        if (swipe === 'up') applyMove('rotate');
+      }}
+      style={{ touchAction: 'none' }}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {state.score}</div>
         <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
       </div>
-      <div className="font-pixel text-[8px] text-white/60 text-center mb-3">ARROWS + SPACE</div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">ARROWS + SPACE</div>
+      <div className="font-body text-[11px] text-white/70 text-center mb-3">Swipe anywhere: left/right move, down drop, up rotate.</div>
 
       <div className="mx-auto w-full max-w-[300px] border border-white/20 bg-black/30 p-2">
         <div className="grid grid-cols-10 gap-[3px]">
@@ -676,6 +777,48 @@ function TetrisGame({ color, storageKey }) {
           className="font-pixel text-[9px] px-3 py-2 border border-white/30 text-white"
         >
           RESET
+        </button>
+      </div>
+
+      <div className="mt-4 max-w-[260px] mx-auto select-none" style={{ touchAction: 'none' }}>
+        <div className="grid grid-cols-3 gap-2">
+          <div />
+          <button
+            onClick={() => applyMove('rotate')}
+            aria-label="Rotate"
+            className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+          >
+            ⟳
+          </button>
+          <div />
+          <button
+            onClick={() => applyMove('left')}
+            aria-label="Move left"
+            className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => applyMove('down')}
+            aria-label="Move down"
+            className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+          >
+            ▼
+          </button>
+          <button
+            onClick={() => applyMove('right')}
+            aria-label="Move right"
+            className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+          >
+            ▶
+          </button>
+        </div>
+        <button
+          onClick={() => applyMove('drop')}
+          aria-label="Hard drop"
+          className="mt-2 w-full font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ⤓
         </button>
       </div>
 
@@ -782,6 +925,26 @@ function Game2048({ color, storageKey }) {
 
   const [state, setState] = useState(createInitialState);
   const highScore = usePersistentHighScore(storageKey, state.score);
+  const touchStartRef = useRef({ x: 0, y: 0 });
+
+  const applyMove = (direction) => {
+    setState((prev) => {
+      if (prev.gameOver) return prev;
+      const moved = moveBoard(prev.board, direction);
+      if (!moved.moved) return prev;
+
+      const board = addRandomTile(moved.board);
+      const won = board.some((row) => row.some((cell) => cell >= 2048));
+      const gameOver = !canMove(board);
+
+      return {
+        board,
+        score: prev.score + moved.scoreGained,
+        won,
+        gameOver,
+      };
+    });
+  };
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -796,22 +959,7 @@ function Game2048({ color, storageKey }) {
       if (!direction) return;
       event.preventDefault();
 
-      setState((prev) => {
-        if (prev.gameOver) return prev;
-        const moved = moveBoard(prev.board, direction);
-        if (!moved.moved) return prev;
-
-        const board = addRandomTile(moved.board);
-        const won = board.some((row) => row.some((cell) => cell >= 2048));
-        const gameOver = !canMove(board);
-
-        return {
-          board,
-          score: prev.score + moved.scoreGained,
-          won,
-          gameOver,
-        };
-      });
+      applyMove(direction);
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -829,12 +977,25 @@ function Game2048({ color, storageKey }) {
   };
 
   return (
-    <div>
+    <div
+      onTouchStart={(event) => {
+        const touch = event.touches[0];
+        touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+      }}
+      onTouchEnd={(event) => {
+        const touch = event.changedTouches[0];
+        const swipe = getSwipeDirection(touchStartRef.current, { x: touch.clientX, y: touch.clientY });
+        if (!swipe) return;
+        applyMove(swipe);
+      }}
+      style={{ touchAction: 'none' }}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {state.score}</div>
         <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
       </div>
-      <div className="font-pixel text-[8px] text-white/60 text-center mb-3">ARROW KEYS</div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">ARROW KEYS</div>
+      <div className="font-body text-[11px] text-white/70 text-center mb-3">Swipe anywhere in this game area to move tiles.</div>
 
       <div className="mx-auto w-full max-w-[320px] border border-white/20 p-3 bg-black/30">
         <div className="grid grid-cols-4 gap-2">
@@ -858,6 +1019,39 @@ function Game2048({ color, storageKey }) {
           style={{ borderColor: color, color }}
         >
           NEW GAME
+        </button>
+      </div>
+
+      <div className="mt-4 max-w-[220px] mx-auto grid grid-cols-3 gap-2 select-none" style={{ touchAction: 'none' }}>
+        <div />
+        <button
+          onClick={() => applyMove('up')}
+          aria-label="Move up"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ▲
+        </button>
+        <div />
+        <button
+          onClick={() => applyMove('left')}
+          aria-label="Move left"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ◀
+        </button>
+        <button
+          onClick={() => applyMove('down')}
+          aria-label="Move down"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ▼
+        </button>
+        <button
+          onClick={() => applyMove('right')}
+          aria-label="Move right"
+          className="font-pixel text-xs px-2 py-2 border border-white/30 text-white"
+        >
+          ▶
         </button>
       </div>
 
@@ -887,9 +1081,9 @@ export default function ProjectGameModal({ project, onClose }) {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm px-4 py-6 md:py-10" onClick={onClose}>
+    <div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm px-3 py-4 md:px-4 md:py-10 overflow-y-auto" onClick={onClose}>
       <div
-        className={`max-w-3xl mx-auto border border-white/20 bg-gradient-to-b ${theme?.panel || 'from-slate-900 to-slate-950'} p-4 md:p-6`}
+        className={`max-w-3xl mx-auto border border-white/20 bg-gradient-to-b ${theme?.panel || 'from-slate-900 to-slate-950'} p-3 md:p-6 my-4`}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
@@ -905,7 +1099,7 @@ export default function ProjectGameModal({ project, onClose }) {
           </button>
         </div>
 
-        <div className="border border-white/15 bg-black/20 p-4">
+        <div className="border border-white/15 bg-black/20 p-3 md:p-4">
           {GameComponent ? (
             <GameComponent color={theme.color} storageKey={`project-game-highscore-${project?.slug}`} />
           ) : (
