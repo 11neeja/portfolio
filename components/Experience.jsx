@@ -116,8 +116,8 @@ export default function Experience() {
           {/* Quest count */}
           <div className="flex justify-center gap-6 mt-8">
             {[
-              { val: '2', label: 'QUESTS DONE' },
-              { val: '6+', label: 'WEEKS' },
+              { val: '3', label: 'QUESTS DONE' },
+              { val: '20+', label: 'WEEKS' },
               { val: '2', label: 'CERTIFICATIONS' },
             ].map((s) => (
               <div key={s.label} className="text-center bg-card/50 border border-white/10 px-4 py-3"

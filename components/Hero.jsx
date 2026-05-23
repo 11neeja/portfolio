@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import CharacterSprite from './CharacterSprite';
-import ThemeIcon from './ThemeIcon';
 
 // Stars component
 function Stars() {
@@ -475,32 +474,40 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* HUD — top right inventory */}
+      {/* HUD — top right project arcade */}
       <div className="absolute top-35 right-6 z-20 hidden lg:block">
-        <div className="bg-darker/80 border border-pixel/30 p-3 backdrop-blur-sm" style={{ boxShadow: '4px 4px 0 #C084FC40' }}>
-          <div className="font-pixel text-[8px] text-pixel mb-2">▶ EQUIPPED</div>
+        <div className="bg-darker/80 border border-pixel/30 p-4 backdrop-blur-sm" style={{ boxShadow: '4px 4px 0 #C084FC40' }}>
+          <div className="font-pixel text-[10px] text-pixel mb-3">▶ PROJECT ARCADE</div>
+          <div className="flex items-center gap-4 px-1 pb-2 mb-2 border-b border-white/15">
+            <div className="font-pixel text-[8px] text-muted w-24">PROJECT</div>
+            <div className="font-pixel text-[8px] text-muted w-28">GAME</div>
+            <div className="font-pixel text-[8px] text-muted w-14 text-center">VIEW</div>
+          </div>
           {[
-            { icon: 'sword', name: 'React.js', rarity: 'EPIC' },
-            { icon: 'shield', name: 'Node.js', rarity: 'RARE' },
-            { icon: 'orb', name: 'AI / ML', rarity: 'LEGEND' },
-          ].map((item) => (
-            <div key={item.name} className="flex items-center gap-2 mb-1.5">
-              <div className="w-6 h-6 bg-card border border-white/20 flex items-center justify-center">
-                <ThemeIcon name={item.icon} size={12} color="#EDE9FE" />
-              </div>
-              <div>
-                <div className="font-pixel text-[6px] text-white">{item.name}</div>
-                <div className="font-pixel text-[6px]" style={{ color: item.rarity === 'LEGEND' ? '#FBBF24' : item.rarity === 'EPIC' ? '#C084FC' : '#2DD4BF' }}>
-                  {item.rarity}
-                </div>
-              </div>
+            { slug: 'medihub',   name: 'MediHUB',   game: 'Memory Pulse',  color: '#A78BFA' },
+            { slug: 'drishti',   name: 'Drishti',   game: 'Anomaly Sweep', color: '#F43F5E' },
+            { slug: 'ecovision', name: 'EcoVision', game: 'Snake Game',    color: '#2DD4BF' },
+            { slug: 'joblink',   name: 'JobLink',   game: 'Flappy Bird',   color: '#FBBF24' },
+            { slug: 'documind',  name: 'DocuMind',  game: 'Tetris',        color: '#C084FC' },
+            { slug: 'smartpay',  name: 'SmartPAY',  game: '2048',          color: '#FF6B9D' },
+          ].map((p) => (
+            <div key={p.slug} className="flex items-center gap-4 px-1 mb-2 last:mb-0">
+              <div className="font-pixel text-[9px] text-white w-24">{p.name}</div>
+              <div className="font-pixel text-[9px] w-28" style={{ color: p.color }}>{p.game}</div>
+              <a
+                href={`/projects/${p.slug}`}
+                className="font-pixel text-[8px] w-14 text-center px-2 py-1 border hover:bg-white/10 transition-colors"
+                style={{ borderColor: `${p.color}80`, color: p.color }}
+              >
+                VIEW
+              </a>
             </div>
           ))}
         </div>
       </div>
 
       {/* Center content */}
-      <div className="relative z-10 text-center px-4 mb-24 md:mb-32 w-full max-w-5xl">
+      <div className="relative z-20 text-center px-4 mb-24 md:mb-32 w-full max-w-5xl">
         <div className="font-pixel text-pixel text-[11px] mb-2" style={{ textShadow: '0 0 20px #FF6B9D' }}>PLAYER ONE</div>
         <h1 className="font-pixel text-[clamp(2.2rem,16vw,4.4rem)] md:text-7xl gradient-text mb-4 leading-[0.92] whitespace-normal break-words max-w-[95vw] mx-auto" style={{ textShadow: '4px 4px 0 rgba(192,132,252,0.3)' }}>
           NEEJA SUVA
@@ -511,7 +518,7 @@ export default function Hero() {
           </div>
 
           {(game.running || game.over) && (
-            <div className="mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-pixel text-[8px] sm:text-[9px] text-gold mb-4 px-3 py-2 border border-gold/50 max-w-[94vw]"
+            <div className="mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-pixel text-[8px] sm:text-[9px] text-gold mb-4 px-3 py-2 border border-gold/50 max-w-[94vw] lg:w-[calc(100%-20rem)]"
               style={{ background: currentBiome.hudBg }}>
               <span>BIOME: {currentBiome.name}</span>
               <span>SCORE: {Math.floor(game.score / 5)}</span>
@@ -539,7 +546,7 @@ export default function Hero() {
 
           <button
             onClick={game.running ? togglePauseGame : startRunnerGame}
-            className="font-pixel text-[10px] text-teal mb-3 border-2 border-teal/70 px-4 py-2 bg-black/30 hover:bg-teal hover:text-darker transition-colors w-full max-w-[270px]"
+            className="relative z-30 font-pixel text-[10px] text-teal mb-3 border-2 border-teal/70 px-4 py-2 bg-black/30 hover:bg-teal hover:text-darker transition-colors w-full max-w-[270px]"
           >
             {game.running ? (game.paused ? '▶ RESUME GAME ◀' : '❚❚ PAUSE GAME') : game.over ? 'RESTART GAME' : '▶ START GAME ◀'}
           </button>
@@ -650,7 +657,7 @@ export default function Hero() {
 
       {(game.running || game.over) && (
         <div
-          className="absolute inset-0 z-20"
+          className="absolute inset-0 z-10"
           onPointerDown={(event) => {
             const target = event.target;
             if (target instanceof HTMLElement && target.closest('button, a')) return;

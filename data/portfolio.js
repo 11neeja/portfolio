@@ -6,7 +6,7 @@ export const hero = {
   class: 'Full Stack Engineer',
   origin: 'India',
   college: 'LDRP-ITR, Gandhinagar',
-  cgpa: '7.3',
+  cgpa: '7.6',
   email: 'suva.neeja11@gmail.com',
   phone: '7041415115',
   github: 'github.com',
@@ -14,21 +14,33 @@ export const hero = {
 };
 
 export const stats = [
-  { label: 'Frontend', value: 90, color: '#FF6B9D', icon: 'sword' },
-  { label: 'Backend', value: 82, color: '#C084FC', icon: 'shield' },
-  { label: 'AI / ML', value: 78, color: '#2DD4BF', icon: 'orb' },
+  { label: 'Frontend', value: 92, color: '#FF6B9D', icon: 'sword' },
+  { label: 'Backend', value: 85, color: '#C084FC', icon: 'shield' },
+  { label: 'AI / ML', value: 86, color: '#2DD4BF', icon: 'orb' },
   { label: 'DSA', value: 75, color: '#FBBF24', icon: 'dagger' },
 ];
 
 export const skills = {
-  'Full Stack': ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'Firebase', 'Tailwind CSS', 'RESTful APIs'],
-  'Languages': ['JavaScript', 'Python', 'C/C++', 'Java', 'TypeScript'],
-  'AI / ML & Cloud': ['Machine Learning', 'CNN', 'Generative AI', 'Google Cloud', 'Scikit-learn', 'Pandas', 'NumPy'],
-  'Tools': ['GitHub', 'VS Code', 'Vercel', 'Postman', 'Google Colab', 'Cloudinary'],
+  'Full Stack': ['React.js', 'Next.js', 'Node.js', 'Express.js', 'MongoDB', 'PostgreSQL', 'Firebase', 'Tailwind CSS', 'RESTful APIs'],
+  'Languages': ['JavaScript', 'TypeScript', 'Python', 'C/C++', 'Java'],
+  'AI / ML & Cloud': ['Machine Learning', 'CNN', 'TensorFlow', 'OpenCV', 'Generative AI', 'Google Cloud', 'Scikit-learn', 'Pandas', 'NumPy', 'Data Preprocessing'],
+  'Tools': ['GitHub', 'Docker', 'VS Code', 'Vercel', 'Postman', 'Google Colab', 'Cloudinary', 'WebSockets'],
   'CS Fundamentals': ['DSA', 'OOP', 'DBMS'],
 };
 
 export const experience = [
+  {
+    company: 'Tech Ahir Private Limited',
+    role: 'Software Developer Intern',
+    period: 'Jan 2026 – Present',
+    biome: 'cyberpunk',
+    color: '#FF6B9D',
+    highlights: [
+      'Modernized core SaaS platform — migrated jQuery / .NET / SQL stack to React.js, Node.js, and PostgreSQL inside a 5-member Agile team, shipping 80%+ of the rebuilt product in 3 months',
+      'Architected 20+ reusable React components and scalable PostgreSQL schemas across RESTful APIs and UI — improved team efficiency by 35%',
+      'Interfaced directly with the founder, clients, and cross-functional teams for requirement analysis, roadmap planning, and full-SDLC sprint execution',
+    ],
+  },
   {
     company: 'Shell India & Edunet Foundation',
     role: 'AI/ML & Data Analytics Intern',
@@ -58,6 +70,100 @@ export const experience = [
 ];
 
 export const projects = [
+  {
+    slug: 'medihub',
+    name: 'MediHUB',
+    subtitle: 'Medical Collaboration Hub',
+    stack: ['Next.js', 'TypeScript', 'Docker', 'PostgreSQL', 'AI Summaries'],
+    desc: 'Unified platform for 500+ medical students, doctors, and researchers — real-time chat, medical news, event management, and AI PDF summarization that boosts study efficiency by 40%.',
+    biome: 'sky',
+    world: {
+      title: 'Astral Observatory of Aetheris',
+      tone: 'Stellar archives where physicians collaborate and AI study insights crystallize.',
+      image: '/mediHUB.png',
+    },
+    detailBoxes: {
+      tileset: [
+        { title: 'Real-time Chat', desc: 'Care team messaging' },
+        { title: 'News Aggregator', desc: 'Medical feed curation' },
+        { title: 'Event Manager', desc: 'Conferences & rounds' },
+        { title: 'PDF Summarizer', desc: 'AI study insights' },
+        { title: 'Medical Notebook', desc: 'Smart knowledge capture' },
+        { title: 'Auth Layer', desc: 'Role-aware sessions' },
+        { title: 'Postgres Core', desc: 'Structured records' },
+        { title: 'Dockerized', desc: 'Portable deploys' },
+      ],
+      assets: [
+        { title: 'Student Dashboard', desc: 'Daily learning hub' },
+        { title: 'Doctor Room', desc: 'Clinical collaboration' },
+        { title: 'Researcher Vault', desc: 'Paper / note library' },
+        { title: 'Note Generator', desc: 'AI-assisted recall' },
+        { title: 'Event Cards', desc: 'CME / workshops' },
+        { title: 'Notification Center', desc: 'Priority alerts' },
+      ],
+    },
+    color: '#A78BFA',
+    accent: '#6D28D9',
+    badge: 'AI / NEXT.JS',
+    stats: { users: '500+', boost: '+40%', focus: 'AI Notes' },
+    highlights: [
+      'Engineered a unified medical collaboration platform with real-time chat, news aggregation, and event management for 500+ users',
+      'Built smart PDF summarization and a medical notebook with AI-generated study insights',
+      'Designed Next.js + TypeScript frontend with PostgreSQL schemas and Docker-based deploys',
+      'Improved study and research efficiency by 40% through knowledge-management automation',
+    ],
+    problem: 'Medical learners and practitioners juggle scattered tools for chat, news, events, and reference material.',
+    solution: 'A single hub combining real-time collaboration with AI-driven summarization and knowledge capture.',
+    outcome: '500+ active users and a 40% lift in study / research efficiency through unified workflows.',
+    github: 'https://github.com/11neeja/medihub',
+  },
+  {
+    slug: 'drishti',
+    name: 'Drishti',
+    subtitle: 'AI Event Safety Platform',
+    stack: ['React.js', 'Node.js', 'MongoDB', 'WebSockets', 'OpenCV', 'TensorFlow', 'GenAI'],
+    desc: 'Intelligent event safety with live crowd monitoring, anomaly detection, and emergency dispatch — scalable for 5M+ attendees. AI heatmaps + Gemini analytics cut response time by 35%.',
+    biome: 'lava',
+    world: {
+      title: 'Watchtower of Inferno Vale',
+      tone: 'Live thermal feeds and AI alert beacons sweeping a million-strong valley.',
+      image: '/Drishti.png',
+    },
+    detailBoxes: {
+      tileset: [
+        { title: 'Crowd Monitor', desc: 'Live density tracking' },
+        { title: 'Anomaly AI', desc: 'TensorFlow + OpenCV' },
+        { title: 'Emergency Dispatch', desc: 'Instant routing' },
+        { title: 'Heatmaps', desc: 'Real-time pressure view' },
+        { title: 'Gemini Analytics', desc: 'GenAI insights layer' },
+        { title: 'WebSocket Bus', desc: 'Low-latency sync' },
+        { title: 'Alert Engine', desc: 'Tiered notifications' },
+        { title: 'Replay Vault', desc: 'Post-event review' },
+      ],
+      assets: [
+        { title: 'Ops Console', desc: 'Unified command UI' },
+        { title: 'Field Mobile App', desc: 'Ground team checks' },
+        { title: 'Camera Grid', desc: 'Multi-feed intake' },
+        { title: 'Risk Score', desc: 'AI threat scoring' },
+        { title: 'Incident Log', desc: 'Audit timeline' },
+        { title: 'Capacity Sim', desc: '5M+ attendee model' },
+      ],
+    },
+    color: '#F43F5E',
+    accent: '#9F1239',
+    badge: 'AI / ML',
+    stats: { scale: '5M+', response: '-35%', detection: 'Live AI' },
+    highlights: [
+      'Built an intelligent event safety platform with crowd monitoring, anomaly detection, and emergency dispatch — scalable for 5M+ attendees',
+      'Integrated OpenAI / Gemini analytics with TensorFlow + OpenCV pipelines for live heatmaps and safety alerts',
+      'Architected MERN backbone with WebSockets for real-time field sync and low-latency dispatch',
+      'Cut emergency response time by 35% through AI-driven prioritization of alerts',
+    ],
+    problem: 'Large-scale events lack a unified, real-time view of crowd risk and dispatch needs.',
+    solution: 'An AI-driven safety command center that fuses computer vision, crowd analytics, and live ops messaging.',
+    outcome: '5M+ attendee scalability with 35% faster emergency response and richer post-event insights.',
+    github: 'https://github.com/Vrajc/project-drishti',
+  },
   {
     slug: 'ecovision',
     name: 'EcoVision',
@@ -103,7 +209,7 @@ export const projects = [
     problem: 'People struggle to identify e-waste type and safe disposal options in real time.',
     solution: 'A guided AI platform that classifies items, educates users, and recommends next disposal actions.',
     outcome: 'Achieved 90%+ accuracy on 500+ images and increased engagement with gamified interaction.',
-    github: '#',
+    github: 'https://github.com/11neeja/EcoVision',
   },
   {
     slug: 'joblink',
@@ -150,7 +256,7 @@ export const projects = [
     problem: 'Recruiters and candidates needed a simple portal with transparent application progress.',
     solution: 'A multi-role platform to post jobs, apply quickly, and track every stage in one dashboard.',
     outcome: 'Handled 100+ postings with responsive tracking workflows and improved data retrieval speed.',
-    github: '#',
+    github: 'https://github.com/Vrajc/Joblink_final',
   },
   {
     slug: 'documind',
@@ -197,7 +303,7 @@ export const projects = [
     problem: 'Clients face delays finding the right legal expert and managing appointments securely.',
     solution: 'A smart legal platform for expert matching, booking, payment, and communication.',
     outcome: 'Reduced process delays and improved discovery quality with high recommendation accuracy.',
-    github: '#',
+    github: 'https://github.com/11neeja?tab=repositories',
   },
   {
     slug: 'smartpay',
@@ -244,13 +350,15 @@ export const projects = [
     problem: 'Salary estimation was manual, inconsistent, and time-consuming for HR teams.',
     solution: 'A data-driven salary prediction engine using cleaned historical records and ML regression.',
     outcome: 'Reached 85%+ accuracy on 3,000+ records and significantly reduced manual HR effort.',
-    github: '#',
+    github: 'https://github.com/11neeja/employee-salary-prediction',
   },
 ];
 
 export const achievements = [
+  { title: 'Anthropic Claude — 18-Course Certification', icon: 'orb', color: '#D97706' },
   { title: 'Google Gen AI Exchange Program', icon: 'trophy', color: '#FBBF24' },
   { title: 'AWS Generative AI for Developers', icon: 'cloud', color: '#FF9900' },
+  { title: 'Finalist – Odoo x Adani University Hackathon', icon: 'india', color: '#F43F5E' },
   { title: 'Smart India Hackathon 2023', icon: 'india', color: '#FF6B9D' },
   { title: 'Python for Data Science – NPTEL', icon: 'python', color: '#2DD4BF' },
   { title: 'IBM SkillsBuild Certifications (×2)', icon: 'orb', color: '#C084FC' },
