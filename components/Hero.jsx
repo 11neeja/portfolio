@@ -474,12 +474,12 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* HUD — top right project arcade */}
-      <div className="absolute top-35 right-6 z-20 hidden lg:block">
-        <div className="bg-darker/80 border border-pixel/30 p-4 backdrop-blur-sm" style={{ boxShadow: '4px 4px 0 #C084FC40' }}>
-          <div className="font-pixel text-[10px] text-pixel mb-3">▶ PROJECT ARCADE</div>
-          <div className="flex items-center gap-4 px-1 pb-2 mb-2 border-b border-white/15">
-            <div className="font-pixel text-[8px] text-muted w-24">PROJECT</div>
+      {/* HUD — top right project arcade (viewport-right, anchored) */}
+      <div className="absolute top-[36vh] md:top-[30vh] lg:top-[26vh] right-0 z-20 hidden md:block">
+        <div className="bg-darker/80 border border-pixel/30 p-3 backdrop-blur-sm w-[22rem] max-w-xs max-h-[60vh] overflow-y-auto" style={{ boxShadow: '3px 3px 0 #C084FC30' }}>
+          <div className="font-pixel text-[10px] text-pixel mb-2">▶ PROJECT ARCADE</div>
+          <div className="flex items-center gap-3 px-1 pb-1 mb-2 border-b border-white/15">
+            <div className="font-pixel text-[8px] text-muted w-20">PROJECT</div>
             <div className="font-pixel text-[8px] text-muted w-28">GAME</div>
             <div className="font-pixel text-[8px] text-muted w-14 text-center">VIEW</div>
           </div>
@@ -491,13 +491,13 @@ export default function Hero() {
             { slug: 'documind',  name: 'DocuMind',  game: 'Tetris',        color: '#C084FC' },
             { slug: 'smartpay',  name: 'SmartPAY',  game: '2048',          color: '#FF6B9D' },
           ].map((p) => (
-            <div key={p.slug} className="flex items-center gap-4 px-1 mb-2 last:mb-0">
-              <div className="font-pixel text-[9px] text-white w-24">{p.name}</div>
-              <div className="font-pixel text-[9px] w-28" style={{ color: p.color }}>{p.game}</div>
+            <div key={p.slug} className="flex items-center gap-3 px-1 mb-1 last:mb-0">
+              <div className="font-pixel text-[9px] text-white w-24 truncate">{p.name}</div>
+              <div className="font-pixel text-[9px] w-28 truncate" style={{ color: p.color }}>{p.game}</div>
               <a
                 href={`/projects/${p.slug}`}
                 className="font-pixel text-[8px] w-14 text-center px-2 py-1 border hover:bg-white/10 transition-colors"
-                style={{ borderColor: `${p.color}80`, color: p.color }}
+                style={{ borderColor: `${p.color}60`, color: p.color }}
               >
                 VIEW
               </a>
@@ -505,13 +505,13 @@ export default function Hero() {
           ))}
         </div>
       </div>
-
       {/* Center content */}
       <div className="relative z-20 text-center px-4 mb-24 md:mb-32 w-full max-w-5xl">
         <div className="font-pixel text-pixel text-[11px] mb-2" style={{ textShadow: '0 0 20px #FF6B9D' }}>PLAYER ONE</div>
         <h1 className="font-pixel text-[clamp(2.2rem,16vw,4.4rem)] md:text-7xl gradient-text mb-4 leading-[0.92] whitespace-normal break-words max-w-[95vw] mx-auto" style={{ textShadow: '4px 4px 0 rgba(192,132,252,0.3)' }}>
           NEEJA SUVA
         </h1>
+        
         <div className="hero-lower-motion">
           <div className="font-body text-base sm:text-lg md:text-xl text-purple-200 mb-3 h-10 px-2">
             {typed}<span className="animate-ping text-pixel">|</span>
