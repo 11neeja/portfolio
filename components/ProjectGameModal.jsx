@@ -25,6 +25,18 @@ const gameThemes = {
     color: '#FF6B9D',
     panel: 'from-[#3A1024] to-[#1C0A12]',
   },
+  medihub: {
+    title: 'MediHUB Pulse',
+    subtitle: 'Recall the patient-record pulse sequence.',
+    color: '#A78BFA',
+    panel: 'from-[#1F1140] to-[#100926]',
+  },
+  drishti: {
+    title: 'Drishti Radar',
+    subtitle: 'Sweep the radar — neutralize anomalies before they escape.',
+    color: '#F43F5E',
+    panel: 'from-[#3A0816] to-[#1A050C]',
+  },
 };
 
 const supportedGames = {
@@ -32,6 +44,8 @@ const supportedGames = {
   joblink: FlappyGame,
   documind: TetrisGame,
   smartpay: Game2048,
+  medihub: MemoryPulseGame,
+  drishti: AnomalySweepGame,
 };
 
 function randomInt(min, max) {
@@ -227,7 +241,7 @@ function SnakeGame({ color, storageKey }) {
         })}
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-4 md:hidden">
         <button
           onClick={() => setState((prev) => (prev.gameOver ? createInitialState() : { ...prev, running: !prev.running }))}
           className="font-pixel text-[9px] px-3 py-2 border"
@@ -243,7 +257,7 @@ function SnakeGame({ color, storageKey }) {
         </button>
       </div>
 
-      <div className="mt-4 max-w-[220px] mx-auto grid grid-cols-3 gap-2 select-none" style={{ touchAction: 'none' }}>
+      <div className="mt-4 max-w-[220px] mx-auto grid grid-cols-3 gap-2 select-none md:hidden" style={{ touchAction: 'none' }}>
         <div />
         <button
           onClick={() => applyDirection({ x: 0, y: -1 })}
@@ -764,7 +778,7 @@ function TetrisGame({ color, storageKey }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-4 md:hidden">
         <button
           onClick={() => setState((prev) => (prev.gameOver ? createInitialState() : { ...prev, running: !prev.running }))}
           className="font-pixel text-[9px] px-3 py-2 border"
@@ -780,7 +794,7 @@ function TetrisGame({ color, storageKey }) {
         </button>
       </div>
 
-      <div className="mt-4 max-w-[260px] mx-auto select-none" style={{ touchAction: 'none' }}>
+      <div className="mt-4 max-w-[260px] mx-auto select-none md:hidden" style={{ touchAction: 'none' }}>
         <div className="grid grid-cols-3 gap-2">
           <div />
           <button
@@ -1012,7 +1026,7 @@ function Game2048({ color, storageKey }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-4 md:hidden">
         <button
           onClick={() => setState(createInitialState())}
           className="font-pixel text-[9px] px-3 py-2 border"
@@ -1022,7 +1036,7 @@ function Game2048({ color, storageKey }) {
         </button>
       </div>
 
-      <div className="mt-4 max-w-[220px] mx-auto grid grid-cols-3 gap-2 select-none" style={{ touchAction: 'none' }}>
+      <div className="mt-4 max-w-[220px] mx-auto grid grid-cols-3 gap-2 select-none md:hidden" style={{ touchAction: 'none' }}>
         <div />
         <button
           onClick={() => applyMove('up')}
@@ -1057,6 +1071,354 @@ function Game2048({ color, storageKey }) {
 
       {state.won ? <p className="font-body text-sm text-center text-emerald-200 mt-3">You reached 2048.</p> : null}
       {state.gameOver ? <p className="font-body text-sm text-center text-rose-200 mt-1">No moves left. Start a new game.</p> : null}
+    </div>
+  );
+}
+
+function MemoryPulseGame({ color, storageKey }) {
+  const pads = [
+    { id: 0, label: 'CARDIO', hue: '#F43F5E', flash: '#FECDD3' },
+    { id: 1, label: 'NEURO',  hue: '#A78BFA', flash: '#DDD6FE' },
+    { id: 2, label: 'ONCO',   hue: '#FBBF24', flash: '#FDE68A' },
+    { id: 3, label: 'ORTHO',  hue: '#2DD4BF', flash: '#99F6E4' },
+  ];
+
+  const [sequence, setSequence] = useState([]);
+  const [playerIndex, setPlayerIndex] = useState(0);
+  const [activePad, setActivePad] = useState(-1);
+  const [showing, setShowing] = useState(false);
+  const [score, setScore] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [message, setMessage] = useState('Press START to begin the pulse.');
+
+  const highScore = usePersistentHighScore(storageKey, score);
+
+  useEffect(() => {
+    if (!showing || sequence.length === 0) return undefined;
+    let cancelled = false;
+    const timers = [];
+    let i = 0;
+
+    const playNext = () => {
+      if (cancelled) return;
+      if (i >= sequence.length) {
+        setShowing(false);
+        setActivePad(-1);
+        setPlayerIndex(0);
+        setMessage('Repeat the pulse sequence.');
+        return;
+      }
+      setActivePad(sequence[i]);
+      timers.push(setTimeout(() => {
+        if (cancelled) return;
+        setActivePad(-1);
+        timers.push(setTimeout(() => {
+          if (cancelled) return;
+          i += 1;
+          playNext();
+        }, 220));
+      }, 480));
+    };
+
+    timers.push(setTimeout(playNext, 500));
+
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, [showing, sequence]);
+
+  const startGame = () => {
+    const first = randomInt(0, 3);
+    setSequence([first]);
+    setPlayerIndex(0);
+    setActivePad(-1);
+    setShowing(true);
+    setScore(0);
+    setRunning(true);
+    setGameOver(false);
+    setMessage('Watch the sequence...');
+  };
+
+  const onPad = (id) => {
+    if (!running || showing || gameOver) return;
+    setActivePad(id);
+    setTimeout(() => setActivePad(-1), 160);
+
+    const expected = sequence[playerIndex];
+    if (id !== expected) {
+      setRunning(false);
+      setGameOver(true);
+      setMessage('Pulse broken. Try again.');
+      return;
+    }
+
+    const nextIndex = playerIndex + 1;
+    if (nextIndex >= sequence.length) {
+      const next = randomInt(0, 3);
+      setScore((s) => s + 1);
+      setSequence((seq) => [...seq, next]);
+      setPlayerIndex(0);
+      setShowing(true);
+      setMessage('Sequence extended. Watch carefully...');
+    } else {
+      setPlayerIndex(nextIndex);
+    }
+  };
+
+  const reset = () => {
+    setSequence([]);
+    setPlayerIndex(0);
+    setActivePad(-1);
+    setShowing(false);
+    setScore(0);
+    setRunning(false);
+    setGameOver(false);
+    setMessage('Press START to begin the pulse.');
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {score}</div>
+        <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
+      </div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">CLICK / TAP THE PADS</div>
+      <div className="font-body text-[11px] text-white/70 text-center mb-3">{message}</div>
+
+      <div className="grid grid-cols-2 gap-2 w-full max-w-[300px] mx-auto border border-white/20 p-2 bg-black/30">
+        {pads.map((pad) => {
+          const isActive = activePad === pad.id;
+          const dim = showing && !isActive;
+          return (
+            <button
+              key={pad.id}
+              onClick={() => onPad(pad.id)}
+              disabled={showing}
+              className="font-pixel text-[10px] border-2 aspect-square transition-all duration-100"
+              style={{
+                borderColor: pad.hue,
+                background: isActive ? pad.flash : `${pad.hue}26`,
+                color: isActive ? '#0B0612' : '#FFFFFF',
+                opacity: dim ? 0.45 : 1,
+                boxShadow: isActive ? `0 0 14px ${pad.hue}` : `inset 0 0 8px ${pad.hue}40`,
+              }}
+            >
+              {pad.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mt-4">
+        <button
+          onClick={startGame}
+          disabled={showing}
+          className="font-pixel text-[9px] px-3 py-2 border disabled:opacity-50"
+          style={{ borderColor: color, color }}
+        >
+          {gameOver ? 'RETRY' : running ? 'RESTART' : 'START'}
+        </button>
+        <button
+          onClick={reset}
+          className="font-pixel text-[9px] px-3 py-2 border border-white/30 text-white"
+        >
+          RESET
+        </button>
+      </div>
+
+      {gameOver ? (
+        <p className="font-body text-sm text-center text-rose-200 mt-3">Pulse lost. Reboot the rhythm.</p>
+      ) : null}
+    </div>
+  );
+}
+
+function AnomalySweepGame({ color, storageKey }) {
+  const rows = 4;
+  const cols = 4;
+  const maxLives = 3;
+  const totalCells = rows * cols;
+
+  const [grid, setGrid] = useState(() => Array(totalCells).fill(null));
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(maxLives);
+  const [running, setRunning] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [, setTick] = useState(0);
+
+  const spawnMsRef = useRef(900);
+  const ttlRef = useRef(1700);
+
+  const highScore = usePersistentHighScore(storageKey, score);
+
+  useEffect(() => {
+    if (!running || gameOver) return undefined;
+    let cancelled = false;
+
+    const schedule = () => {
+      if (cancelled) return;
+      const id = setTimeout(() => {
+        setGrid((g) => {
+          const empty = [];
+          for (let i = 0; i < g.length; i += 1) if (g[i] === null) empty.push(i);
+          if (empty.length === 0) return g;
+          const idx = empty[Math.floor(Math.random() * empty.length)];
+          const next = g.slice();
+          next[idx] = { spawnTs: Date.now(), ttl: ttlRef.current };
+          return next;
+        });
+        schedule();
+      }, spawnMsRef.current);
+      // Store id on a closure so cleanup cancels it
+      cleanupRef.current = id;
+    };
+
+    const cleanupRef = { current: null };
+    schedule();
+
+    return () => {
+      cancelled = true;
+      if (cleanupRef.current) clearTimeout(cleanupRef.current);
+    };
+  }, [running, gameOver]);
+
+  useEffect(() => {
+    if (!running || gameOver) return undefined;
+    const id = setInterval(() => {
+      const now = Date.now();
+      setGrid((g) => {
+        let escapes = 0;
+        const next = g.map((cell) => {
+          if (!cell) return cell;
+          if (now - cell.spawnTs >= cell.ttl) {
+            escapes += 1;
+            return null;
+          }
+          return cell;
+        });
+        if (escapes > 0) {
+          setLives((l) => {
+            const nl = l - escapes;
+            if (nl <= 0) {
+              setRunning(false);
+              setGameOver(true);
+            }
+            return Math.max(0, nl);
+          });
+        }
+        return next;
+      });
+      setTick((t) => (t + 1) % 1000);
+    }, 80);
+    return () => clearInterval(id);
+  }, [running, gameOver]);
+
+  useEffect(() => {
+    if (!running || gameOver) return undefined;
+    const id = setInterval(() => {
+      spawnMsRef.current = Math.max(320, spawnMsRef.current - 60);
+      ttlRef.current = Math.max(800, ttlRef.current - 70);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [running, gameOver]);
+
+  const onCell = (i) => {
+    if (!running || gameOver) return;
+    setGrid((g) => {
+      if (!g[i]) return g;
+      setScore((s) => s + 1);
+      const next = g.slice();
+      next[i] = null;
+      return next;
+    });
+  };
+
+  const start = () => {
+    spawnMsRef.current = 900;
+    ttlRef.current = 1700;
+    setGrid(Array(totalCells).fill(null));
+    setScore(0);
+    setLives(maxLives);
+    setRunning(true);
+    setGameOver(false);
+  };
+
+  const reset = () => {
+    spawnMsRef.current = 900;
+    ttlRef.current = 1700;
+    setGrid(Array(totalCells).fill(null));
+    setScore(0);
+    setLives(maxLives);
+    setRunning(false);
+    setGameOver(false);
+  };
+
+  const now = Date.now();
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {score}</div>
+        <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
+      </div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">CLICK / TAP TO NEUTRALIZE</div>
+      <div className="font-body text-[11px] text-white/70 text-center mb-3">
+        {gameOver
+          ? 'Sector overrun. Re-engage when ready.'
+          : running
+            ? `LIVES: ${'♥'.repeat(lives)}${'·'.repeat(maxLives - lives)}  ·  speed rising`
+            : 'Sweep the radar. Tap red anomalies before they escape.'}
+      </div>
+
+      <div
+        className="grid gap-1 border border-white/20 p-2 bg-black/30 w-full max-w-[320px] mx-auto"
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+      >
+        {grid.map((cell, i) => {
+          const age = cell ? Math.min(1, (now - cell.spawnTs) / cell.ttl) : 0;
+          const intensity = cell ? 0.3 + (1 - age) * 0.6 : 0;
+          return (
+            <button
+              key={i}
+              onClick={() => onCell(i)}
+              className="border aspect-square flex items-center justify-center font-pixel text-base transition-colors"
+              style={{
+                borderColor: cell ? color : 'rgba(255,255,255,0.12)',
+                background: cell
+                  ? `rgba(244, 63, 94, ${intensity})`
+                  : 'rgba(255,255,255,0.04)',
+                color: cell ? '#FFFFFF' : 'transparent',
+                boxShadow: cell ? `inset 0 0 10px ${color}AA` : 'none',
+              }}
+              aria-label={cell ? 'Anomaly' : 'Empty cell'}
+            >
+              {cell ? '◆' : ''}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mt-4">
+        <button
+          onClick={start}
+          className="font-pixel text-[9px] px-3 py-2 border"
+          style={{ borderColor: color, color }}
+        >
+          {gameOver ? 'RETRY' : running ? 'RESTART' : 'START'}
+        </button>
+        <button
+          onClick={reset}
+          className="font-pixel text-[9px] px-3 py-2 border border-white/30 text-white"
+        >
+          RESET
+        </button>
+      </div>
+
+      {gameOver ? (
+        <p className="font-body text-sm text-center text-rose-200 mt-3">Anomalies overran the sector. Re-engage.</p>
+      ) : null}
     </div>
   );
 }

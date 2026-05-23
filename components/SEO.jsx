@@ -23,7 +23,9 @@ export default function SEO({
       <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
 
       <link rel="canonical" href={canonical} />
-      <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+      <link rel="icon" href="/N.png" type="image/png" />
+      <link rel="shortcut icon" href="/N.png" type="image/png" />
+      <link rel="apple-touch-icon" href="/N.png" />
 
       <meta property="og:type" content={type} />
       <meta property="og:title" content={title} />

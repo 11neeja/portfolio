@@ -140,7 +140,7 @@ export default function ProjectDetailsPage({ project }) {
   if (!project) return null;
   const [isGameOpen, setIsGameOpen] = useState(false);
   const theme = biomeThemes[project.biome] || biomeThemes.forest;
-  const hasGame = ['ecovision', 'joblink', 'documind', 'smartpay'].includes(project.slug);
+  const hasGame = ['ecovision', 'joblink', 'documind', 'smartpay', 'medihub', 'drishti'].includes(project.slug);
   const pathname = `/projects/${project.slug}`;
   const siteUrl = getSiteUrl();
   const socialImage = project.world?.image ? `${siteUrl}${project.world.image}` : undefined;
@@ -265,7 +265,7 @@ export default function ProjectDetailsPage({ project }) {
 export async function getStaticPaths() {
   return {
     paths: projects.map((project) => ({ params: { slug: project.slug } })),
-    fallback: false,
+    fallback: 'blocking',
   };
 }
 

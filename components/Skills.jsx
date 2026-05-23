@@ -87,8 +87,8 @@ export default function Skills() {
               {[
                 { label: 'LEVEL', val: '03', color: '#FBBF24' },
                 { label: 'CLASS', val: 'FULL STACK', color: '#FF6B9D' },
-                { label: 'CGPA', val: '7.3', color: '#2DD4BF' },
-                { label: 'INTERN XP', val: '2x', color: '#C084FC' },
+                { label: 'CGPA', val: '7.6', color: '#2DD4BF' },
+                { label: 'INTERN XP', val: '3x', color: '#C084FC' },
               ].map((item) => (
                 <div key={item.label} className="bg-card/50 border border-white/10 p-2.5 sm:p-3 text-center min-w-0">
                   <div className="font-pixel text-[7px] text-muted mb-1">{item.label}</div>
