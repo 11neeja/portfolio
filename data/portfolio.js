@@ -1,7 +1,7 @@
 export const hero = {
   name: 'Neeja Suva',
   title: 'Software Developer',
-  tagline: 'Full Stack Dev · AI/ML Explorer · Code Adventurer',
+  tagline: 'Full Stack Dev · AI/ML Developer · Code Adventurer',
   level: 3,
   class: 'Full Stack Engineer',
   origin: 'India',
@@ -24,8 +24,7 @@ export const skills = {
   'Full Stack': ['React.js', 'Next.js', 'Node.js', 'Express.js', 'MongoDB', 'PostgreSQL', 'Firebase', 'Tailwind CSS', 'RESTful APIs'],
   'Languages': ['JavaScript', 'TypeScript', 'Python', 'C/C++', 'Java'],
   'AI / ML & Cloud': ['Machine Learning', 'CNN', 'TensorFlow', 'OpenCV', 'Generative AI', 'Google Cloud', 'Scikit-learn', 'Pandas', 'NumPy', 'Data Preprocessing'],
-  'Tools': ['GitHub', 'Docker', 'VS Code', 'Vercel', 'Postman', 'Google Colab', 'Cloudinary', 'WebSockets'],
-  'CS Fundamentals': ['DSA', 'OOP', 'DBMS'],
+  'Development Tools': ['GitHub', 'Docker', 'VS Code', 'Vercel', 'Postman', 'Google Colab', 'GitHub Copilot', 'Prompt Engineering', 'Claude Code', 'Cursor'],
 };
 
 export const experience = [
@@ -74,7 +73,7 @@ export const projects = [
     slug: 'medihub',
     name: 'MediHUB',
     subtitle: 'Medical Collaboration Hub',
-    stack: ['Next.js', 'TypeScript', 'Docker', 'PostgreSQL', 'AI Summaries'],
+    stack: ['Next.js', 'TypeScript', 'Docker', 'PostgreSQL'],
     desc: 'Unified platform for 500+ medical students, doctors, and researchers — real-time chat, medical news, event management, and AI PDF summarization that boosts study efficiency by 40%.',
     biome: 'sky',
     world: {
@@ -107,10 +106,8 @@ export const projects = [
     badge: 'AI / NEXT.JS',
     stats: { users: '500+', boost: '+40%', focus: 'AI Notes' },
     highlights: [
-      'Engineered a unified medical collaboration platform with real-time chat, news aggregation, and event management for 500+ users',
-      'Built smart PDF summarization and a medical notebook with AI-generated study insights',
-      'Designed Next.js + TypeScript frontend with PostgreSQL schemas and Docker-based deploys',
-      'Improved study and research efficiency by 40% through knowledge-management automation',
+      'Engineered an AI-powered medical collaboration platform with real-time chat, news aggregation, and event management for 500+ users, built with AI-assisted tools (Claude, Copilot) for 50% faster delivery.',
+      'Built a smart PDF summarization and medical notebook system using LLMs and RAG-based retrieval for AI-generated insights and contextual Q&A, boosting research efficiency by 40%.',
     ],
     problem: 'Medical learners and practitioners juggle scattered tools for chat, news, events, and reference material.',
     solution: 'A single hub combining real-time collaboration with AI-driven summarization and knowledge capture.',
@@ -121,7 +118,7 @@ export const projects = [
     slug: 'drishti',
     name: 'Drishti',
     subtitle: 'AI Event Safety Platform',
-    stack: ['React.js', 'Node.js', 'MongoDB', 'WebSockets', 'OpenCV', 'TensorFlow', 'GenAI'],
+    stack: ['AI/ML', 'MERN Stack', 'WebSockets', 'OpenCV', 'GenAI'],
     desc: 'Intelligent event safety with live crowd monitoring, anomaly detection, and emergency dispatch — scalable for 5M+ attendees. AI heatmaps + Gemini analytics cut response time by 35%.',
     biome: 'lava',
     world: {
@@ -154,10 +151,8 @@ export const projects = [
     badge: 'AI / ML',
     stats: { scale: '5M+', response: '-35%', detection: 'Live AI' },
     highlights: [
-      'Built an intelligent event safety platform with crowd monitoring, anomaly detection, and emergency dispatch — scalable for 5M+ attendees',
-      'Integrated OpenAI / Gemini analytics with TensorFlow + OpenCV pipelines for live heatmaps and safety alerts',
-      'Architected MERN backbone with WebSockets for real-time field sync and low-latency dispatch',
-      'Cut emergency response time by 35% through AI-driven prioritization of alerts',
+      'Built an AI-driven event safety platform with real-time crowd monitoring, anomaly detection, and emergency dispatch using MERN and WebSockets, scalable for 5M+ attendees.',
+      'Integrated OpenAI/Gemini multimodal analytics with TensorFlow/OpenCV for live heatmaps and an agentic AI command center that auto-triages alerts, cutting response time by 35%.',
     ],
     problem: 'Large-scale events lack a unified, real-time view of crowd risk and dispatch needs.',
     solution: 'An AI-driven safety command center that fuses computer vision, crowd analytics, and live ops messaging.',
@@ -359,7 +354,9 @@ export const achievements = [
   { title: 'Google Gen AI Exchange Program', icon: 'trophy', color: '#FBBF24' },
   { title: 'AWS Generative AI for Developers', icon: 'cloud', color: '#FF9900' },
   { title: 'Finalist – Odoo x Adani University Hackathon', icon: 'india', color: '#F43F5E' },
-  { title: 'Smart India Hackathon 2023', icon: 'india', color: '#FF6B9D' },
+  { title: 'Finalist – Smart India Hackathon 2023', icon: 'india', color: '#FF6B9D' },
+  { title: 'Finalist – OpenAI Academy x NxtWave Regional Buildathon', icon: 'trophy', color: '#10A37F' },
+  { title: 'Infosys Springboard – AI/ML & Generative AI (16 Courses Completed)', icon: 'orb', color: '#007CC3' },
   { title: 'Python for Data Science – NPTEL', icon: 'python', color: '#2DD4BF' },
   { title: 'IBM SkillsBuild Certifications (×2)', icon: 'orb', color: '#C084FC' },
   { title: 'Accenture Software Engineering Simulation', icon: 'briefcase', color: '#A78BFA' },

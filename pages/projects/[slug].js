@@ -5,6 +5,9 @@ import { projects } from '../../data/portfolio';
 import ProjectGameModal from '../../components/ProjectGameModal';
 import SEO from '../../components/SEO';
 import { getCanonicalUrl, getSiteUrl } from '../../lib/seo';
+import { hasGame } from '../../lib/games';
+import { HudCorners } from '../../components/HudFrame';
+import { BiomeFX, GamePreviewTile, QuestNav, Reveal } from '../../components/ProjectFX';
 
 const biomeThemes = {
   forest: {
@@ -53,14 +56,34 @@ const biomeThemes = {
   },
 };
 
-function BiomePreview({ project }) {
-  const theme = biomeThemes[project.biome] || biomeThemes.forest;
+// Neon-bordered HUD panel: glow, inner vignette, corner brackets, hover-glow.
+// Colors flow through CSS custom properties so :hover (in globals.css) can react.
+function HudPanel({ children, color, glow, surface, className = '' }) {
+  return (
+    <div
+      className={`hud-panel relative border ${className}`}
+      style={{
+        '--hud-color': color,
+        '--hud-border': `${color}55`,
+        '--hud-glow': glow,
+        '--hud-surface': surface,
+      }}
+    >
+      <HudCorners color={color} />
+      {children}
+    </div>
+  );
+}
+
+function BiomePreview({ project, theme }) {
   const tilesetItems = project.detailBoxes?.tileset || [];
   const assetItems = project.detailBoxes?.assets || [];
 
   return (
-    <div className="relative border border-white/20 overflow-hidden" style={{ boxShadow: `0 0 50px ${theme.glow}` }}>
-      <div className={`h-[46vw] min-h-[190px] max-h-[320px] md:h-72 bg-gradient-to-r ${theme.banner} relative`}>
+    <div className="relative border overflow-hidden" style={{ borderColor: `${project.color}55`, boxShadow: `0 0 55px ${theme.glow}` }}>
+      <HudCorners color={project.color} />
+
+      <div className={`scanlines h-[46vw] min-h-[190px] max-h-[320px] md:h-72 bg-gradient-to-r ${theme.banner} relative`}>
         {project.world?.image ? (
           <Image
             src={project.world.image}
@@ -72,30 +95,29 @@ function BiomePreview({ project }) {
           />
         ) : null}
 
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(8,6,25,0.2) 0%, rgba(8,6,25,0.65) 100%)' }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(8,6,25,0.2) 0%, rgba(8,6,25,0.72) 100%)' }} />
         <div className="absolute inset-0 opacity-25" style={{ background: 'radial-gradient(circle at 70% 30%, #ffffff55 0%, transparent 45%)' }} />
-        <div className="absolute inset-0 opacity-12" style={{ background: 'linear-gradient(120deg, transparent 0%, #ffffff33 45%, transparent 100%)' }} />
 
-        <div className="absolute top-4 left-4 border border-white/30 bg-black/20 px-3 py-1">
-          <div className="font-pixel text-[8px] text-white">WORLD</div>
+        <div className="absolute top-4 left-4 border px-3 py-1 bg-black/40 backdrop-blur-sm" style={{ borderColor: project.color, boxShadow: `0 0 12px ${theme.glow}` }}>
+          <div className="font-pixel text-[8px]" style={{ color: project.color }}>◆ WORLD</div>
         </div>
 
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="font-pixel text-[10px] md:text-xs text-white mb-1">{project.world.title}</div>
+        <div className="absolute bottom-3 left-3 right-3 border-l-2 pl-3 py-2 bg-black/55 backdrop-blur-sm" style={{ borderColor: project.color }}>
+          <div className="font-pixel text-[10px] md:text-xs text-white mb-1" style={{ textShadow: `0 0 10px ${theme.glow}` }}>{project.world.title}</div>
           <div className="font-body text-xs md:text-sm text-white/90">{project.world.tone}</div>
         </div>
       </div>
 
       <div className={`grid md:grid-cols-2 gap-0 bg-gradient-to-r ${theme.panel} p-4 md:p-6`}>
         <div className="pr-0 md:pr-6 border-b md:border-b-0 md:border-r border-white/15 pb-5 md:pb-0">
-          <div className="font-pixel text-[10px] text-white/90 mb-3">TILESET</div>
+          <div className="font-pixel text-[10px] text-white/90 mb-3" style={{ textShadow: `0 0 8px ${theme.glow}` }}>▶ TILESET</div>
           <div className="grid grid-cols-4 gap-2">
             {Array.from({ length: 8 }).map((_, idx) => (
               <div key={idx} className={`h-12 md:h-16 border border-white/20 bg-gradient-to-br ${theme.tile} p-1.5 flex flex-col justify-between`}>
-                <div className="font-pixel text-[6px] text-white/95 leading-tight break-words">
+                <div className="font-pixel text-[6px] text-white leading-tight break-words">
                   {tilesetItems[idx]?.title || `Module ${idx + 1}`}
                 </div>
-                <div className="font-body text-[9px] text-white/80 leading-tight break-words">
+                <div className="font-body text-[9px] text-white/85 leading-tight break-words">
                   {tilesetItems[idx]?.desc || 'Core project component'}
                 </div>
               </div>
@@ -104,14 +126,14 @@ function BiomePreview({ project }) {
         </div>
 
         <div className="pt-5 md:pt-0 md:pl-6">
-          <div className="font-pixel text-[10px] text-white/90 mb-3">ASSETS</div>
+          <div className="font-pixel text-[10px] text-white/90 mb-3" style={{ textShadow: `0 0 8px ${theme.glow}` }}>▶ ASSETS</div>
           <div className="grid grid-cols-3 gap-2">
             {Array.from({ length: 6 }).map((_, idx) => (
               <div key={idx} className={`h-14 md:h-20 border border-white/20 bg-gradient-to-br ${theme.asset} p-2 flex flex-col justify-between`}>
-                <div className="font-pixel text-[7px] text-white/95 leading-tight break-words">
+                <div className="font-pixel text-[7px] text-white leading-tight break-words">
                   {assetItems[idx]?.title || `Asset ${idx + 1}`}
                 </div>
-                <div className="font-body text-[10px] text-white/80 leading-tight break-words">
+                <div className="font-body text-[10px] text-white/85 leading-tight break-words">
                   {assetItems[idx]?.desc || 'Supporting project feature'}
                 </div>
               </div>
@@ -123,13 +145,13 @@ function BiomePreview({ project }) {
   );
 }
 
-function StatGrid({ stats, color }) {
+function StatGrid({ stats, color, glow }) {
   return (
     <div className="grid grid-cols-3 gap-2 md:gap-3">
       {Object.entries(stats).map(([k, v]) => (
-        <div key={k} className="border border-white/15 bg-white/5 p-2 md:p-3 text-center">
-          <div className="font-pixel text-[9px] md:text-[10px]" style={{ color }}>{v}</div>
-          <div className="font-pixel text-[7px] text-muted mt-1">{k.toUpperCase()}</div>
+        <div key={k} className="stat-tile relative border bg-black/50 p-2 md:p-3 text-center" style={{ borderColor: `${color}55`, boxShadow: `0 0 12px ${glow}` }}>
+          <div className="font-pixel text-[10px] md:text-xs" style={{ color, textShadow: `0 0 10px ${color}` }}>{v}</div>
+          <div className="font-pixel text-[7px] text-white/75 mt-1">{k.toUpperCase()}</div>
         </div>
       ))}
     </div>
@@ -140,7 +162,8 @@ export default function ProjectDetailsPage({ project }) {
   if (!project) return null;
   const [isGameOpen, setIsGameOpen] = useState(false);
   const theme = biomeThemes[project.biome] || biomeThemes.forest;
-  const hasGame = ['ecovision', 'joblink', 'documind', 'smartpay', 'medihub', 'drishti'].includes(project.slug);
+  const gameAvailable = hasGame(project.slug);
+  const openGame = () => setIsGameOpen(true);
   const pathname = `/projects/${project.slug}`;
   const siteUrl = getSiteUrl();
   const socialImage = project.world?.image ? `${siteUrl}${project.world.image}` : undefined;
@@ -173,87 +196,128 @@ export default function ProjectDetailsPage({ project }) {
       <main className="relative min-h-screen text-white overflow-hidden">
         <div className={`absolute inset-0 bg-gradient-to-b ${theme.pageBg}`} />
 
+        {/* Arcade-HUD background layers: pixel grid + scanlines + biome particles */}
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+            backgroundSize: '34px 34px',
+          }}
+        />
+        <BiomeFX biome={project.biome} />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ zIndex: 5, background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)' }}
+        />
+
         <section className="relative z-10 max-w-6xl mx-auto px-5 md:px-8 pt-12 pb-16">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div className="flex flex-wrap items-center gap-2">
-              <Link href="/#projects" className="font-pixel text-[9px] px-3 py-2 border hover:text-white transition-colors"
-                style={{ color: theme.softText, borderColor: theme.sectionBorder }}>
+              <Link
+                href="/#projects"
+                className="font-pixel text-[9px] px-3 py-2 border-2 bg-black/30 transition-all duration-150 hover:-translate-y-0.5 hover:text-white"
+                style={{ color: theme.softText, borderColor: theme.sectionBorder, boxShadow: `0 0 10px ${theme.glow}` }}
+              >
                 ◀ BACK TO PROJECTS
               </Link>
 
-              {hasGame ? (
+              {gameAvailable ? (
                 <button
-                  onClick={() => setIsGameOpen(true)}
-                  className="font-pixel text-[9px] px-4 py-2 border-2"
+                  onClick={openGame}
+                  className="font-pixel text-[9px] px-4 py-2 border-2 transition-all duration-150 hover:-translate-y-0.5"
                   style={{
                     borderColor: project.color,
                     color: '#FFFFFF',
                     backgroundColor: `${project.color}33`,
-                    boxShadow: `0 0 14px ${project.color}66`,
+                    boxShadow: `0 0 16px ${project.color}77`,
                   }}
                 >
-                  ▶ GAME
+                  ▶ PLAY GAME
                 </button>
               ) : null}
             </div>
 
-            <div className="font-pixel text-[9px] px-3 py-2 border" style={{ borderColor: project.color, color: project.color }}>
+            <div className="font-pixel text-[9px] px-3 py-2 border-2 bg-black/30" style={{ borderColor: project.color, color: project.color, boxShadow: `0 0 12px ${theme.glow}` }}>
               {project.badge}
             </div>
           </div>
 
+          {/* Title + prominent readable briefing */}
           <div className="mb-7">
-            <div className="font-pixel text-[10px] mb-2" style={{ color: project.color }}>PROJECT WORLD</div>
-            <h1 className="font-pixel text-3xl md:text-5xl leading-tight mb-3">{project.name}</h1>
-            <p className="font-body text-base md:text-lg max-w-4xl" style={{ color: theme.softText }}>{project.subtitle} · {project.desc}</p>
+            <div className="font-pixel text-[10px] mb-3 inline-block px-2.5 py-1 border bg-black/30" style={{ color: project.color, borderColor: `${project.color}66`, boxShadow: `0 0 12px ${theme.glow}` }}>
+              ◆ PROJECT WORLD
+            </div>
+            <h1 className="hud-title font-pixel text-3xl md:text-5xl leading-tight mb-4" style={{ textShadow: `3px 3px 0 rgba(0,0,0,0.55), 0 0 24px ${theme.glow}`, '--title-glow': theme.glow }}>
+              {project.name}
+            </h1>
+            <div className="relative border-l-4 pl-4 py-3 bg-black/55 backdrop-blur-sm max-w-4xl" style={{ borderColor: project.color }}>
+              <div className="font-pixel text-[9px] mb-1.5" style={{ color: project.color }}>{project.subtitle}</div>
+              <p className="font-body text-[15px] md:text-lg text-white/90 leading-relaxed">{project.desc}</p>
+            </div>
           </div>
 
-          <BiomePreview project={project} />
+          <Reveal>
+            <BiomePreview project={project} theme={theme} />
+          </Reveal>
 
-          <div className="grid lg:grid-cols-3 gap-6 mt-8">
-            <div className="lg:col-span-2 border p-5 md:p-6" style={{ borderColor: theme.sectionBorder, background: theme.panelSurface }}>
-              <div className="font-pixel text-[10px] text-gold mb-4">MISSION BRIEF</div>
+          <Reveal className="grid lg:grid-cols-3 gap-6 mt-8">
+            <HudPanel color={project.color} glow={theme.glow} surface={theme.panelSurface} className="lg:col-span-2 p-5 md:p-7">
+              <div className="font-pixel text-[10px] mb-5" style={{ color: '#FBBF24', textShadow: '0 0 10px rgba(251,191,36,0.6)' }}>◆ MISSION BRIEF</div>
 
-              <div className="space-y-4 text-base leading-relaxed" style={{ color: theme.softText }}>
-                <p><span className="font-pixel text-[9px] text-white">PROBLEM:</span> {project.problem}</p>
-                <p><span className="font-pixel text-[9px] text-white">SOLUTION:</span> {project.solution}</p>
-                <p><span className="font-pixel text-[9px] text-white">OUTCOME:</span> {project.outcome}</p>
+              <div className="space-y-3">
+                {[['PROBLEM', project.problem], ['SOLUTION', project.solution], ['OUTCOME', project.outcome]].map(([label, text]) => (
+                  <div key={label} className="bg-black/50 border border-white/10 p-3.5 md:p-4">
+                    <div className="font-pixel text-[8px] mb-2 inline-block px-2 py-1" style={{ color: '#0A0510', background: project.color }}>{label}</div>
+                    <p className="font-body text-[15px] md:text-lg leading-relaxed text-white/90">{text}</p>
+                  </div>
+                ))}
               </div>
 
               <div className="mt-6">
-                <div className="font-pixel text-[10px] text-white mb-3">KEY HIGHLIGHTS</div>
-                <ul className="space-y-2">
+                <div className="font-pixel text-[10px] text-white mb-3" style={{ textShadow: `0 0 8px ${theme.glow}` }}>▶ KEY HIGHLIGHTS</div>
+                <ul className="space-y-2.5">
                   {project.highlights.map((item) => (
-                    <li key={item} className="font-body text-base border-l-2 pl-3" style={{ color: theme.softText, borderColor: project.color }}>
-                      {item}
+                    <li key={item} className="font-body text-[15px] md:text-[17px] leading-relaxed flex gap-3 bg-black/40 border-l-2 pl-3 py-2.5 text-white/90" style={{ borderColor: project.color }}>
+                      <span className="mt-1.5 shrink-0 w-2.5 h-2.5" style={{ background: project.color, boxShadow: `0 0 8px ${project.color}` }} />
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
+            </HudPanel>
+
+            <div className="space-y-6">
+              {gameAvailable ? <GamePreviewTile color={project.color} glow={theme.glow} onPlay={openGame} /> : null}
+
+              <HudPanel color={project.color} glow={theme.glow} surface={theme.panelSurface} className="p-5 md:p-6">
+                <div className="font-pixel text-[10px] text-white mb-4" style={{ textShadow: `0 0 8px ${theme.glow}` }}>▶ PROJECT STATS</div>
+                <StatGrid stats={project.stats} color={project.color} glow={theme.glow} />
+
+                <div className="font-pixel text-[10px] text-white mt-6 mb-3" style={{ textShadow: `0 0 8px ${theme.glow}` }}>▶ TECH STACK</div>
+                <div className="flex flex-wrap gap-2">
+                  {project.stack.map((tech) => (
+                    <span key={tech} className="font-body text-xs px-2.5 py-1.5 border bg-white/5 text-white/85" style={{ borderColor: `${project.color}55`, boxShadow: `0 0 8px ${project.color}22` }}>
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-6 inline-block w-full text-center font-pixel text-[9px] px-4 py-3 border-2 transition-all duration-150 hover:-translate-y-0.5"
+                  style={{ borderColor: project.color, color: '#FFFFFF', background: `${project.color}22`, boxShadow: `0 0 16px ${theme.glow}` }}
+                >
+                  ▶ VIEW CODE
+                </a>
+              </HudPanel>
             </div>
+          </Reveal>
 
-            <div className="border p-5 md:p-6" style={{ borderColor: theme.sectionBorder, background: theme.panelSurface }}>
-              <div className="font-pixel text-[10px] text-white mb-4">PROJECT STATS</div>
-              <StatGrid stats={project.stats} color={project.color} />
-
-              <div className="font-pixel text-[10px] text-white mt-6 mb-3">TECH STACK</div>
-              <div className="flex flex-wrap gap-2">
-                {project.stack.map((tech) => (
-                  <span key={tech} className="font-body text-xs px-2.5 py-1.5 border" style={{ color: theme.softText, borderColor: theme.sectionBorder }}>
-                    {tech}
-                  </span>
-                ))}
-              </div>
-
-              <a
-                href={project.github}
-                className="mt-6 inline-block font-pixel text-[9px] px-4 py-2 border-2"
-                style={{ borderColor: project.color, color: project.color }}
-              >
-                ▶ VIEW CODE
-              </a>
-            </div>
-          </div>
+          <Reveal>
+            <QuestNav projects={projects} currentSlug={project.slug} color={project.color} />
+          </Reveal>
 
           {isGameOpen ? <ProjectGameModal project={project} onClose={() => setIsGameOpen(false)} /> : null}
         </section>

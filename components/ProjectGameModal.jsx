@@ -26,14 +26,14 @@ const gameThemes = {
     panel: 'from-[#3A1024] to-[#1C0A12]',
   },
   medihub: {
-    title: 'MediHUB Pulse',
-    subtitle: 'Recall the patient-record pulse sequence.',
+    title: 'MediHUB Match',
+    subtitle: 'Flip the cards and match the medical icons to score.',
     color: '#A78BFA',
     panel: 'from-[#1F1140] to-[#100926]',
   },
   drishti: {
-    title: 'Drishti Radar',
-    subtitle: 'Sweep the radar — neutralize anomalies before they escape.',
+    title: 'Drishti Reflex',
+    subtitle: 'Wait for the green signal, then tap as fast as you can.',
     color: '#F43F5E',
     panel: 'from-[#3A0816] to-[#1A050C]',
   },
@@ -44,8 +44,8 @@ const supportedGames = {
   joblink: FlappyGame,
   documind: TetrisGame,
   smartpay: Game2048,
-  medihub: MemoryPulseGame,
-  drishti: AnomalySweepGame,
+  medihub: MemoryMatchGame,
+  drishti: ReactionTimeGame,
 };
 
 function randomInt(min, max) {
@@ -1075,107 +1075,83 @@ function Game2048({ color, storageKey }) {
   );
 }
 
-function MemoryPulseGame({ color, storageKey }) {
-  const pads = [
-    { id: 0, label: 'CARDIO', hue: '#F43F5E', flash: '#FECDD3' },
-    { id: 1, label: 'NEURO',  hue: '#A78BFA', flash: '#DDD6FE' },
-    { id: 2, label: 'ONCO',   hue: '#FBBF24', flash: '#FDE68A' },
-    { id: 3, label: 'ORTHO',  hue: '#2DD4BF', flash: '#99F6E4' },
-  ];
+function MemoryMatchGame({ color, storageKey }) {
+  // One emoji per pair — 8 medical icons => 16 cards in a 4x4 grid.
+  const icons = ['💊', '🩺', '💉', '🧬', '🩹', '🏥', '❤️', '🧠'];
 
-  const [sequence, setSequence] = useState([]);
-  const [playerIndex, setPlayerIndex] = useState(0);
-  const [activePad, setActivePad] = useState(-1);
-  const [showing, setShowing] = useState(false);
+  const buildDeck = () => {
+    const cards = [...icons, ...icons].map((icon, i) => ({ uid: i, icon }));
+    for (let i = cards.length - 1; i > 0; i -= 1) {
+      const j = randomInt(0, i);
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    return cards;
+  };
+
+  const [deck, setDeck] = useState(buildDeck);
+  const [flipped, setFlipped] = useState([]); // indices currently face-up (max 2)
+  const [matched, setMatched] = useState([]); // indices locked as matched
+  const [moves, setMoves] = useState(0);
   const [score, setScore] = useState(0);
-  const [running, setRunning] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [message, setMessage] = useState('Press START to begin the pulse.');
+  const [lock, setLock] = useState(false); // ignore clicks while a mismatch is resolving
+  const [won, setWon] = useState(false);
 
   const highScore = usePersistentHighScore(storageKey, score);
 
-  useEffect(() => {
-    if (!showing || sequence.length === 0) return undefined;
-    let cancelled = false;
-    const timers = [];
-    let i = 0;
+  const totalPairs = icons.length;
+  const pairsFound = matched.length / 2;
 
-    const playNext = () => {
-      if (cancelled) return;
-      if (i >= sequence.length) {
-        setShowing(false);
-        setActivePad(-1);
-        setPlayerIndex(0);
-        setMessage('Repeat the pulse sequence.');
-        return;
-      }
-      setActivePad(sequence[i]);
-      timers.push(setTimeout(() => {
-        if (cancelled) return;
-        setActivePad(-1);
-        timers.push(setTimeout(() => {
-          if (cancelled) return;
-          i += 1;
-          playNext();
-        }, 220));
-      }, 480));
-    };
+  const onCard = (index) => {
+    if (lock || won) return;
+    if (flipped.includes(index) || matched.includes(index)) return;
 
-    timers.push(setTimeout(playNext, 500));
-
-    return () => {
-      cancelled = true;
-      timers.forEach(clearTimeout);
-    };
-  }, [showing, sequence]);
-
-  const startGame = () => {
-    const first = randomInt(0, 3);
-    setSequence([first]);
-    setPlayerIndex(0);
-    setActivePad(-1);
-    setShowing(true);
-    setScore(0);
-    setRunning(true);
-    setGameOver(false);
-    setMessage('Watch the sequence...');
-  };
-
-  const onPad = (id) => {
-    if (!running || showing || gameOver) return;
-    setActivePad(id);
-    setTimeout(() => setActivePad(-1), 160);
-
-    const expected = sequence[playerIndex];
-    if (id !== expected) {
-      setRunning(false);
-      setGameOver(true);
-      setMessage('Pulse broken. Try again.');
+    if (flipped.length === 0) {
+      setFlipped([index]);
       return;
     }
 
-    const nextIndex = playerIndex + 1;
-    if (nextIndex >= sequence.length) {
-      const next = randomInt(0, 3);
-      setScore((s) => s + 1);
-      setSequence((seq) => [...seq, next]);
-      setPlayerIndex(0);
-      setShowing(true);
-      setMessage('Sequence extended. Watch carefully...');
+    const first = flipped[0];
+    if (first === index) return;
+
+    const newMoves = moves + 1;
+    setMoves(newMoves);
+    setFlipped([first, index]);
+    setLock(true);
+
+    if (deck[first].icon === deck[index].icon) {
+      // Match: lock the pair and award points.
+      setTimeout(() => {
+        const newMatched = [...matched, first, index];
+        setMatched(newMatched);
+        setFlipped([]);
+        setLock(false);
+
+        if (newMatched.length === deck.length) {
+          // Completion bonus rewards finishing in fewer moves.
+          const bonus = Math.max(0, 400 - newMoves * 10);
+          setScore((s) => s + 50 + bonus);
+          setWon(true);
+        } else {
+          setScore((s) => s + 50);
+        }
+      }, 380);
     } else {
-      setPlayerIndex(nextIndex);
+      // No match: flip both back after a beat.
+      setTimeout(() => {
+        setFlipped([]);
+        setLock(false);
+      }, 750);
     }
   };
 
   const reset = () => {
-    setSequence([]);
-    setPlayerIndex(0);
-    setActivePad(-1);
-    setShowing(false);
+    setDeck(buildDeck());
+    setFlipped([]);
+    setMatched([]);
+    setMoves(0);
     setScore(0);
-    setRunning(false);
-    setGameOver(false);
-    setMessage('Press START to begin the pulse.');
+    setLock(false);
+    setWon(false);
   };
 
   return (
@@ -1184,28 +1160,36 @@ function MemoryPulseGame({ color, storageKey }) {
         <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {score}</div>
         <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
       </div>
-      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">CLICK / TAP THE PADS</div>
-      <div className="font-body text-[11px] text-white/70 text-center mb-3">{message}</div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">CLICK / TAP TO FLIP</div>
+      <div className="font-body text-[11px] text-white/70 text-center mb-3">
+        {won
+          ? 'All pairs matched! Press NEW GAME to reshuffle.'
+          : `PAIRS: ${pairsFound}/${totalPairs}  ·  MOVES: ${moves}`}
+      </div>
 
-      <div className="grid grid-cols-2 gap-2 w-full max-w-[300px] mx-auto border border-white/20 p-2 bg-black/30">
-        {pads.map((pad) => {
-          const isActive = activePad === pad.id;
-          const dim = showing && !isActive;
+      <div className="grid grid-cols-4 gap-2 w-full max-w-[320px] mx-auto border border-white/20 p-2 bg-black/30">
+        {deck.map((card, i) => {
+          const isMatched = matched.includes(i);
+          const isFaceUp = isMatched || flipped.includes(i);
           return (
             <button
-              key={pad.id}
-              onClick={() => onPad(pad.id)}
-              disabled={showing}
-              className="font-pixel text-[10px] border-2 aspect-square transition-all duration-100"
+              key={card.uid}
+              onClick={() => onCard(i)}
+              disabled={lock || isFaceUp}
+              className="aspect-square border-2 flex items-center justify-center text-2xl transition-all duration-200"
               style={{
-                borderColor: pad.hue,
-                background: isActive ? pad.flash : `${pad.hue}26`,
-                color: isActive ? '#0B0612' : '#FFFFFF',
-                opacity: dim ? 0.45 : 1,
-                boxShadow: isActive ? `0 0 14px ${pad.hue}` : `inset 0 0 8px ${pad.hue}40`,
+                borderColor: color,
+                background: isFaceUp ? (isMatched ? `${color}40` : '#FFFFFF') : `${color}1A`,
+                boxShadow: isMatched ? `0 0 12px ${color}` : `inset 0 0 8px ${color}33`,
+                opacity: isMatched ? 0.85 : 1,
               }}
+              aria-label={isFaceUp ? `Card showing ${card.icon}` : 'Hidden card'}
             >
-              {pad.label}
+              {isFaceUp ? (
+                <span>{card.icon}</span>
+              ) : (
+                <span className="font-pixel text-[12px]" style={{ color }}>✦</span>
+              )}
             </button>
           );
         })}
@@ -1213,149 +1197,97 @@ function MemoryPulseGame({ color, storageKey }) {
 
       <div className="flex items-center justify-center gap-2 mt-4">
         <button
-          onClick={startGame}
-          disabled={showing}
-          className="font-pixel text-[9px] px-3 py-2 border disabled:opacity-50"
+          onClick={reset}
+          className="font-pixel text-[9px] px-3 py-2 border"
           style={{ borderColor: color, color }}
         >
-          {gameOver ? 'RETRY' : running ? 'RESTART' : 'START'}
-        </button>
-        <button
-          onClick={reset}
-          className="font-pixel text-[9px] px-3 py-2 border border-white/30 text-white"
-        >
-          RESET
+          {won ? 'NEW GAME' : 'RESET'}
         </button>
       </div>
 
-      {gameOver ? (
-        <p className="font-body text-sm text-center text-rose-200 mt-3">Pulse lost. Reboot the rhythm.</p>
+      {won ? (
+        <p className="font-body text-sm text-center text-emerald-200 mt-3">
+          Cleared in {moves} moves. Fewer moves = higher score.
+        </p>
       ) : null}
     </div>
   );
 }
 
-function AnomalySweepGame({ color, storageKey }) {
-  const rows = 4;
-  const cols = 4;
-  const maxLives = 3;
-  const totalCells = rows * cols;
-
-  const [grid, setGrid] = useState(() => Array(totalCells).fill(null));
-  const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(maxLives);
-  const [running, setRunning] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [, setTick] = useState(0);
-
-  const spawnMsRef = useRef(900);
-  const ttlRef = useRef(1700);
+function ReactionTimeGame({ color, storageKey }) {
+  // phase: idle -> waiting (red) -> ready (green) -> result | early
+  const [phase, setPhase] = useState('idle');
+  const [reaction, setReaction] = useState(null); // ms of last successful tap
+  const [score, setScore] = useState(0); // faster tap => higher score
+  const timeoutRef = useRef(null);
+  const readyTsRef = useRef(0);
 
   const highScore = usePersistentHighScore(storageKey, score);
 
-  useEffect(() => {
-    if (!running || gameOver) return undefined;
-    let cancelled = false;
+  const clearPending = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
 
-    const schedule = () => {
-      if (cancelled) return;
-      const id = setTimeout(() => {
-        setGrid((g) => {
-          const empty = [];
-          for (let i = 0; i < g.length; i += 1) if (g[i] === null) empty.push(i);
-          if (empty.length === 0) return g;
-          const idx = empty[Math.floor(Math.random() * empty.length)];
-          const next = g.slice();
-          next[idx] = { spawnTs: Date.now(), ttl: ttlRef.current };
-          return next;
-        });
-        schedule();
-      }, spawnMsRef.current);
-      // Store id on a closure so cleanup cancels it
-      cleanupRef.current = id;
+  const armRound = () => {
+    clearPending();
+    setReaction(null);
+    setPhase('waiting');
+    // Random hold so the green signal can't be anticipated.
+    timeoutRef.current = setTimeout(() => {
+      readyTsRef.current = Date.now();
+      setPhase('ready');
+    }, randomInt(1200, 3500));
+  };
+
+  const handleTap = () => {
+    if (phase === 'idle' || phase === 'result' || phase === 'early') {
+      armRound();
+      return;
+    }
+    if (phase === 'waiting') {
+      // Jumped the gun.
+      clearPending();
+      setReaction(null);
+      setPhase('early');
+      return;
+    }
+    if (phase === 'ready') {
+      const ms = Date.now() - readyTsRef.current;
+      setReaction(ms);
+      setScore(Math.max(0, 600 - ms));
+      setPhase('result');
+    }
+  };
+
+  useEffect(() => clearPending, []);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.code !== 'Space') return;
+      event.preventDefault();
+      handleTap();
     };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [phase]);
 
-    const cleanupRef = { current: null };
-    schedule();
-
-    return () => {
-      cancelled = true;
-      if (cleanupRef.current) clearTimeout(cleanupRef.current);
-    };
-  }, [running, gameOver]);
-
-  useEffect(() => {
-    if (!running || gameOver) return undefined;
-    const id = setInterval(() => {
-      const now = Date.now();
-      setGrid((g) => {
-        let escapes = 0;
-        const next = g.map((cell) => {
-          if (!cell) return cell;
-          if (now - cell.spawnTs >= cell.ttl) {
-            escapes += 1;
-            return null;
-          }
-          return cell;
-        });
-        if (escapes > 0) {
-          setLives((l) => {
-            const nl = l - escapes;
-            if (nl <= 0) {
-              setRunning(false);
-              setGameOver(true);
-            }
-            return Math.max(0, nl);
-          });
-        }
-        return next;
-      });
-      setTick((t) => (t + 1) % 1000);
-    }, 80);
-    return () => clearInterval(id);
-  }, [running, gameOver]);
-
-  useEffect(() => {
-    if (!running || gameOver) return undefined;
-    const id = setInterval(() => {
-      spawnMsRef.current = Math.max(320, spawnMsRef.current - 60);
-      ttlRef.current = Math.max(800, ttlRef.current - 70);
-    }, 5000);
-    return () => clearInterval(id);
-  }, [running, gameOver]);
-
-  const onCell = (i) => {
-    if (!running || gameOver) return;
-    setGrid((g) => {
-      if (!g[i]) return g;
-      setScore((s) => s + 1);
-      const next = g.slice();
-      next[i] = null;
-      return next;
-    });
+  const rating = (ms) => {
+    if (ms < 200) return 'LIGHTNING';
+    if (ms < 300) return 'SHARP';
+    if (ms < 400) return 'STEADY';
+    return 'KEEP GOING';
   };
 
-  const start = () => {
-    spawnMsRef.current = 900;
-    ttlRef.current = 1700;
-    setGrid(Array(totalCells).fill(null));
-    setScore(0);
-    setLives(maxLives);
-    setRunning(true);
-    setGameOver(false);
-  };
-
-  const reset = () => {
-    spawnMsRef.current = 900;
-    ttlRef.current = 1700;
-    setGrid(Array(totalCells).fill(null));
-    setScore(0);
-    setLives(maxLives);
-    setRunning(false);
-    setGameOver(false);
-  };
-
-  const now = Date.now();
+  const view = {
+    idle: { bg: `${color}1A`, label: 'TAP TO START', sub: 'Wait for green, then tap.' },
+    waiting: { bg: '#7F1D1D', label: 'WAIT…', sub: "Don't tap yet." },
+    ready: { bg: '#16A34A', label: 'TAP NOW!', sub: '' },
+    result: { bg: `${color}1A`, label: `${reaction} ms`, sub: `${rating(reaction)} · tap to retry` },
+    early: { bg: '#991B1B', label: 'TOO SOON!', sub: 'Wait for green · tap to retry' },
+  }[phase];
 
   return (
     <div>
@@ -1363,61 +1295,35 @@ function AnomalySweepGame({ color, storageKey }) {
         <div className="font-pixel text-[10px]" style={{ color }}>SCORE: {score}</div>
         <div className="font-pixel text-[9px] text-white/80">HIGH: {highScore}</div>
       </div>
-      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">CLICK / TAP TO NEUTRALIZE</div>
+      <div className="font-pixel text-[8px] text-white/60 text-center mb-1">CLICK / TAP / SPACE</div>
       <div className="font-body text-[11px] text-white/70 text-center mb-3">
-        {gameOver
-          ? 'Sector overrun. Re-engage when ready.'
-          : running
-            ? `LIVES: ${'♥'.repeat(lives)}${'·'.repeat(maxLives - lives)}  ·  speed rising`
-            : 'Sweep the radar. Tap red anomalies before they escape.'}
+        Faster reactions score more points. Best score is saved.
       </div>
 
-      <div
-        className="grid gap-1 border border-white/20 p-2 bg-black/30 w-full max-w-[320px] mx-auto"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+      <button
+        onClick={handleTap}
+        className="w-full max-w-[360px] mx-auto h-[220px] flex flex-col items-center justify-center border-2 transition-colors duration-100 select-none"
+        style={{ borderColor: color, background: view.bg, touchAction: 'manipulation' }}
+        aria-label={view.label}
       >
-        {grid.map((cell, i) => {
-          const age = cell ? Math.min(1, (now - cell.spawnTs) / cell.ttl) : 0;
-          const intensity = cell ? 0.3 + (1 - age) * 0.6 : 0;
-          return (
-            <button
-              key={i}
-              onClick={() => onCell(i)}
-              className="border aspect-square flex items-center justify-center font-pixel text-base transition-colors"
-              style={{
-                borderColor: cell ? color : 'rgba(255,255,255,0.12)',
-                background: cell
-                  ? `rgba(244, 63, 94, ${intensity})`
-                  : 'rgba(255,255,255,0.04)',
-                color: cell ? '#FFFFFF' : 'transparent',
-                boxShadow: cell ? `inset 0 0 10px ${color}AA` : 'none',
-              }}
-              aria-label={cell ? 'Anomaly' : 'Empty cell'}
-            >
-              {cell ? '◆' : ''}
-            </button>
-          );
-        })}
-      </div>
+        <span className="font-pixel text-base md:text-lg text-white">{view.label}</span>
+        {view.sub ? <span className="font-body text-xs text-white/80 mt-3">{view.sub}</span> : null}
+      </button>
 
       <div className="flex items-center justify-center gap-2 mt-4">
         <button
-          onClick={start}
+          onClick={armRound}
           className="font-pixel text-[9px] px-3 py-2 border"
           style={{ borderColor: color, color }}
         >
-          {gameOver ? 'RETRY' : running ? 'RESTART' : 'START'}
-        </button>
-        <button
-          onClick={reset}
-          className="font-pixel text-[9px] px-3 py-2 border border-white/30 text-white"
-        >
-          RESET
+          {phase === 'idle' ? 'START' : 'RESTART'}
         </button>
       </div>
 
-      {gameOver ? (
-        <p className="font-body text-sm text-center text-rose-200 mt-3">Anomalies overran the sector. Re-engage.</p>
+      {phase === 'result' ? (
+        <p className="font-body text-sm text-center text-emerald-200 mt-3">
+          {reaction} ms — {rating(reaction).toLowerCase()}. Tap the box to go again.
+        </p>
       ) : null}
     </div>
   );

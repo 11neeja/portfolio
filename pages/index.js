@@ -1,7 +1,6 @@
 import Navbar from '../components/Navbar';
-import Hero from '../components/Hero';
+import Hero from '../components/HeroOS';
 import Skills from '../components/Skills';
-import Experience from '../components/Experience';
 import Projects from '../components/Projects';
 import { Achievements, Contact } from '../components/AchievementsContact';
 import { hero } from '../data/portfolio';
@@ -74,12 +73,7 @@ export default function Home() {
         <Skills />
 
         {/* Biome transition */}
-        <div className="w-full h-2 bg-gradient-to-r from-purple-900 via-teal-900 to-purple-900" />
-
-        <Experience />
-
-        {/* Biome transition */}
-        <div className="w-full h-2 bg-gradient-to-r from-teal-900 via-pink-900 to-teal-900" />
+        <div className="w-full h-2 bg-gradient-to-r from-purple-900 via-pink-900 to-purple-900" />
 
         <Projects />
 

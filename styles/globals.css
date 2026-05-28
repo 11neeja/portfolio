@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 * { box-sizing: border-box; scroll-behavior: smooth; }
-body { background: #070412; color: #F1F0FF; font-family: 'Outfit', sans-serif; overflow-x: hidden; cursor: none; }
+body { background: #070412; color: #F1F0FF; font-family: 'Outfit', sans-serif; overflow-x: hidden; cursor: none; padding-bottom: 2.25rem; }
 
 /* Custom cursor */
 .cursor { position: fixed; width: 12px; height: 12px; background: #FF6B9D; border-radius: 0; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); image-rendering: pixelated; transition: transform 0.1s; }
@@ -43,6 +43,142 @@ body { background: #070412; color: #F1F0FF; font-family: 'Outfit', sans-serif; o
 /* Card hover */
 .game-card { transition: all 0.25s ease; }
 .game-card:hover { transform: translate(-4px, -4px); }
+
+/* ── Clickable game-menu buttons (Skills section tabs) ───────────────── */
+/* Per-tab colors are injected from JS as CSS custom properties:
+   --tc (full), --tc-soft (idle border), --tc-glow, --tc-bg (hover tint), --tc-shadow-soft */
+.game-tab {
+  position: relative;
+  border-color: var(--tc-soft);
+  box-shadow: 3px 3px 0 var(--tc-shadow-soft);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+/* Hover / keyboard focus: light the whole card up so it reads as pressable */
+.game-tab:hover,
+.game-tab:focus-visible {
+  outline: none;
+  border-color: var(--tc);
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--tc-glow), 0 0 22px var(--tc-glow);
+  background: linear-gradient(135deg, var(--tc-bg), transparent 65%), rgba(15, 10, 30, 0.55);
+}
+
+/* Extra ring on keyboard focus for accessibility (native cursor is hidden) */
+.game-tab:focus-visible {
+  box-shadow: 6px 6px 0 var(--tc-glow), 0 0 0 2px var(--tc), 0 0 22px var(--tc-glow);
+}
+
+/* Press feedback: button physically depresses into the page */
+.game-tab:active {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 var(--tc-glow);
+}
+
+/* Selected tab keeps the lit-up look */
+.game-tab.is-active {
+  border-color: var(--tc);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--tc-glow), 0 0 18px var(--tc-glow);
+  background: linear-gradient(135deg, var(--tc-bg), transparent 60%), rgba(15, 10, 30, 0.6);
+}
+
+/* "CLICK TO OPEN" hint brightens on hover/select */
+.game-tab .tab-cta { color: #9CA3AF; transition: color 0.18s ease; }
+.game-tab:hover .tab-cta,
+.game-tab:focus-visible .tab-cta,
+.game-tab.is-active .tab-cta { color: var(--tc); }
+
+/* Icon tile gains a glow on hover */
+.game-tab:hover .tab-icon,
+.game-tab:focus-visible .tab-icon,
+.game-tab.is-active .tab-icon { box-shadow: 0 0 14px var(--tc-glow); }
+
+@media (prefers-reduced-motion: reduce) {
+  .game-tab,
+  .game-tab:hover,
+  .game-tab:focus-visible,
+  .game-tab:active,
+  .game-tab.is-active { transform: none; }
+  .game-tab .tab-sweep { display: none; }
+}
+
+/* ── Arcade-cabinet "PRESS START" glow for the Hero mini-game launcher ── */
+@keyframes arcadePulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(45,212,191,0.45), 0 0 16px rgba(45,212,191,0.3), 4px 4px 0 rgba(13,148,136,0.55); }
+  50%      { box-shadow: 0 0 0 1px rgba(45,212,191,0.9),  0 0 34px rgba(45,212,191,0.7), 4px 4px 0 rgba(13,148,136,0.55); }
+}
+.arcade-cabinet { animation: arcadePulse 1.8s ease-in-out infinite; }
+
+@keyframes coinBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.coin-blink { animation: coinBlink 1s steps(2, end) infinite; }
+
+/* ── Project-page arcade FX ───────────────────────────────────────────── */
+/* CRT power-on: thin bright line expands to fill, flips dark, fades out */
+@keyframes crtOn {
+  0%   { opacity: 1; transform: scaleY(0.02); background: #ffffff; }
+  22%  { opacity: 1; transform: scaleY(0.02); background: #ffffff; }
+  46%  { opacity: 1; transform: scaleY(1);    background: #ffffff; }
+  60%  { background: #05010E; opacity: 0.92; }
+  78%  { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+.crt-boot { transform-origin: center; animation: crtOn 0.9s ease-out forwards; }
+
+/* Marquee scroll (two stacked copies → seamless loop at -50%) */
+@keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { animation: marqueeScroll 16s linear infinite; }
+
+/* Ambient biome particles drifting upward */
+@keyframes fxRise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  12%  { opacity: var(--fx-op, 0.6); }
+  88%  { opacity: var(--fx-op, 0.6); }
+  100% { transform: translateY(-130px) translateX(var(--fx-drift, 12px)); opacity: 0; }
+}
+.fx-particle { animation: fxRise var(--fx-dur, 9s) ease-in-out var(--fx-delay, 0s) infinite; }
+
+/* Mini arcade runner inside the game-preview tile */
+@keyframes miniHop { 0%, 64%, 100% { transform: translateY(0); } 76% { transform: translateY(-15px); } 88% { transform: translateY(-5px); } }
+.mini-runner { animation: miniHop 1.5s ease-in-out infinite; }
+@keyframes miniScroll { from { transform: translateX(140px); } to { transform: translateX(-24px); } }
+.mini-obstacle { animation: miniScroll 1.5s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .arcade-cabinet, .coin-blink,
+  .crt-boot,
+  .marquee-track, .fx-particle, .mini-runner, .mini-obstacle { animation: none; }
+}
+
+/* ── Project-page polish: reveal-on-scroll, panel/stat interactivity, title glow ── */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.reveal-in { opacity: 1; transform: translateY(0); }
+
+/* HUD panel base + hover (colors injected via --hud-* custom properties) */
+.hud-panel {
+  border-color: var(--hud-border, rgba(255,255,255,0.2));
+  background: var(--hud-surface, rgba(10,6,22,0.7));
+  box-shadow: 0 0 26px var(--hud-glow, rgba(255,255,255,0.15)), inset 0 0 42px rgba(0,0,0,0.4);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.hud-panel:hover {
+  border-color: var(--hud-color, rgba(255,255,255,0.45));
+  box-shadow: 0 0 42px var(--hud-glow, rgba(255,255,255,0.25)), inset 0 0 42px rgba(0,0,0,0.42);
+}
+
+.stat-tile { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+.stat-tile:hover { transform: translateY(-2px); }
+
+@keyframes titlePulse {
+  0%, 100% { filter: drop-shadow(0 0 5px var(--title-glow, rgba(255,255,255,0.25))); }
+  50%      { filter: drop-shadow(0 0 16px var(--title-glow, rgba(255,255,255,0.5))); }
+}
+.hud-title { animation: titlePulse 3.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .hud-title { animation: none; }
+}
 
 /* Section divider */
 .biome-divider { width: 100%; height: 80px; position: relative; overflow: hidden; }

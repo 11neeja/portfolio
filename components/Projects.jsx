@@ -2,6 +2,8 @@ import { projects } from '../data/portfolio';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ThemeIcon from './ThemeIcon';
+import { hasGame } from '../lib/games';
+import { HudCorners } from './HudFrame';
 
 const biomeStyles = {
   forest: { bg: 'from-[#0A1F0A] to-[#070412]', particle: '#22C55E' },
@@ -23,6 +25,7 @@ function ProjectCard({ project, index }) {
   const router = useRouter();
   const style = biomeStyles[project.biome];
   const isEven = index % 2 === 0;
+  const playable = hasGame(project.slug);
 
   const openDetails = () => router.push(`/projects/${project.slug}`);
 
@@ -37,7 +40,9 @@ function ProjectCard({ project, index }) {
           openDetails();
         }
       }}
-      style={{ borderColor: `${project.color}40`, boxShadow: `6px 6px 0 ${project.color}20` }}>
+      style={{ borderColor: `${project.color}55`, boxShadow: `6px 6px 0 ${project.color}25, 0 0 26px ${project.color}22` }}>
+
+      <HudCorners color={project.color} />
 
       {/* Left: visual panel */}
       <div className={`relative p-5 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-48 border-r ${isEven ? 'md:order-1' : 'md:order-2'}`}
@@ -48,6 +53,14 @@ function ProjectCard({ project, index }) {
           style={{ borderColor: project.color, color: project.color, background: `${project.color}20` }}>
           {project.badge}
         </div>
+
+        {/* Playable badge — signals a mini-game lives inside */}
+        {playable ? (
+          <div className="absolute top-3 right-3 coin-blink font-pixel text-[7px] px-2 py-1 border-2 flex items-center gap-1"
+            style={{ borderColor: project.color, color: '#FFFFFF', background: `${project.color}33`, boxShadow: `0 0 12px ${project.color}` }}>
+            ▶ PLAYABLE
+          </div>
+        ) : null}
 
         {/* Project icon — pixel art style */}
         <div className="w-20 h-20 border-2 flex items-center justify-center mb-4 animate-pulse-glow relative"

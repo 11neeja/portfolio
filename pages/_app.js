@@ -5,6 +5,16 @@ export default function App({ Component, pageProps }) {
   const cursorRef = useRef(null);
   const followerRef = useRef(null);
 
+  // Always land on the hero (top) on initial page load / reload, ignoring
+  // any scroll position the browser would otherwise restore.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const cursor = cursorRef.current;
     const follower = followerRef.current;

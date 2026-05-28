@@ -45,13 +45,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* CTA */}
-        <a href="mailto:suva.neeja11@gmail.com"
-          className="hidden md:block font-pixel text-[8px] px-4 py-2 bg-pixel text-white border-2 border-pixel hover:bg-transparent hover:text-pixel transition-all duration-200"
-          style={{ boxShadow: '3px 3px 0 #C084FC' }}>
-          HIRE ME ▶
-        </a>
-
         {/* Mobile menu */}
         <button onClick={() => setOpen(!open)} className="md:hidden text-pixel font-pixel text-[10px]">
           <ThemeIcon name={open ? 'close' : 'menu'} size={16} color="#FF6B9D" />

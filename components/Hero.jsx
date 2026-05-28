@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import CharacterSprite from './CharacterSprite';
+import Character3D from './Character3D';
 
 // Stars component
 function Stars() {
@@ -162,7 +163,7 @@ export default function Hero() {
     runnerV: 0,
     obstacles: [],
   });
-  const phrases = ['Full Stack Developer', 'AI/ML Explorer', 'Code Adventurer', 'Problem Solver'];
+  const phrases = ['Full Stack & AI/ML Developer', 'Code Adventurer', 'Problem Solver'];
   const phraseIdx = useRef(0);
   const charIdx = useRef(0);
   const deleting = useRef(false);
@@ -387,6 +388,7 @@ export default function Hero() {
             const next = Math.max(old, finalScore);
             if (typeof window !== 'undefined') {
               window.localStorage.setItem('runnerHighScore', String(next));
+              window.dispatchEvent(new Event('runnerHighScore'));
             }
             return next;
           });
@@ -484,8 +486,8 @@ export default function Hero() {
             <div className="font-pixel text-[8px] text-muted w-14 text-center">VIEW</div>
           </div>
           {[
-            { slug: 'medihub',   name: 'MediHUB',   game: 'Memory Pulse',  color: '#A78BFA' },
-            { slug: 'drishti',   name: 'Drishti',   game: 'Anomaly Sweep', color: '#F43F5E' },
+            { slug: 'medihub',   name: 'MediHUB',   game: 'Memory Match',  color: '#A78BFA' },
+            { slug: 'drishti',   name: 'Drishti',   game: 'Reflex Test',   color: '#F43F5E' },
             { slug: 'ecovision', name: 'EcoVision', game: 'Snake Game',    color: '#2DD4BF' },
             { slug: 'joblink',   name: 'JobLink',   game: 'Flappy Bird',   color: '#FBBF24' },
             { slug: 'documind',  name: 'DocuMind',  game: 'Tetris',        color: '#C084FC' },
@@ -511,7 +513,7 @@ export default function Hero() {
         <h1 className="font-pixel text-[clamp(2.2rem,16vw,4.4rem)] md:text-7xl gradient-text mb-4 leading-[0.92] whitespace-normal break-words max-w-[95vw] mx-auto" style={{ textShadow: '4px 4px 0 rgba(192,132,252,0.3)' }}>
           NEEJA SUVA
         </h1>
-        
+
         <div className="hero-lower-motion">
           <div className="font-body text-base sm:text-lg md:text-xl text-purple-200 mb-3 h-10 px-2">
             {typed}<span className="animate-ping text-pixel">|</span>
@@ -544,12 +546,15 @@ export default function Hero() {
             ))}
           </div>
 
-          <button
-            onClick={game.running ? togglePauseGame : startRunnerGame}
-            className="relative z-30 font-pixel text-[10px] text-teal mb-3 border-2 border-teal/70 px-4 py-2 bg-black/30 hover:bg-teal hover:text-darker transition-colors w-full max-w-[270px]"
-          >
-            {game.running ? (game.paused ? '▶ RESUME GAME ◀' : '❚❚ PAUSE GAME') : game.over ? 'RESTART GAME' : '▶ START GAME ◀'}
-          </button>
+          {/* Mini-game launcher — single button, no cabinet frame */}
+          <div className="relative z-30 mx-auto w-full max-w-[300px] mb-3">
+            <button
+              onClick={game.running ? togglePauseGame : startRunnerGame}
+              className="font-pixel text-[10px] text-teal border-2 border-teal/70 px-4 py-2 bg-black/30 hover:bg-teal hover:text-darker transition-colors w-full"
+            >
+              {game.running ? (game.paused ? '▶ RESUME GAME ◀' : '❚❚ PAUSE GAME') : game.over ? 'RESTART GAME' : '▶ PRESS START ◀'}
+            </button>
+          </div>
         </div>
 
       </div>
@@ -651,7 +656,7 @@ export default function Hero() {
             <div className="font-pixel text-[7px] text-pixel">Hello, I'm Neeja !</div>
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-pixel" />
           </div>
-          <CharacterSprite size={72} walking={walking} />
+          <Character3D size={180} />
         </div>
       )}
 

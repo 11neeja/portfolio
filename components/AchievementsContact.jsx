@@ -1,5 +1,6 @@
 import { achievements } from '../data/portfolio';
 import ThemeIcon from './ThemeIcon';
+import { HudCorners } from './HudFrame';
 
 function TrophyCard({ achievement, index }) {
   return (
@@ -82,8 +83,9 @@ export function Contact() {
             { icon: 'linkedin', label: 'LINKEDIN', val: 'linkedin.com', href: 'https://www.linkedin.com/in/neeja-suva-1212121212121212121/', color: '#2DD4BF' },
           ].map((c) => (
             <a key={c.label} href={c.href}
-              className="block bg-card/60 border p-4 text-center game-card hover:border-opacity-80 transition-all"
-              style={{ borderColor: `${c.color}40`, boxShadow: `4px 4px 0 ${c.color}20` }}>
+              className="relative block bg-card/60 border p-4 text-center game-card hover:border-opacity-80 transition-all"
+              style={{ borderColor: `${c.color}55`, boxShadow: `4px 4px 0 ${c.color}25, 0 0 22px ${c.color}22` }}>
+              <HudCorners color={c.color} size="w-3 h-3" />
               <div className="mb-2 flex justify-center"><ThemeIcon name={c.icon} size={22} color={c.color} /></div>
               <div className="font-pixel text-[7px] mb-1" style={{ color: c.color }}>{c.label}</div>
               <div className="font-body text-xs text-muted truncate">{c.val}</div>
